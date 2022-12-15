@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.1)
 
-# this is set to include winsock2 library
+# this is set to add Networking library to LocalChat, since Networking is not built inside LocalChat
 cmake_policy(SET CMP0079 NEW)
 
 project ("LocalChat")
