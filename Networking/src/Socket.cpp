@@ -164,6 +164,7 @@ namespace ntwk {
 	{
 		if (m_NativeSocket != INVALID_SOCKET)
 		{
+			shutdown(m_NativeSocket, SD_BOTH);
 			closesocket(m_NativeSocket);
 			m_NativeSocket = INVALID_SOCKET;
 			
