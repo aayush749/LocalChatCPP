@@ -9,6 +9,7 @@ list(APPEND SOURCES ${INCLUDE_DIR}/Networking/Socket.h)
 list(APPEND SOURCES ${INCLUDE_DIR}/Networking/ServerSocket.h)
 list(APPEND SOURCES ${INCLUDE_DIR}/Networking/Networking.h)
 
+list(APPEND SOURCES src/EntryPoint.cpp)
 list(APPEND SOURCES src/Socket.cpp)
 list(APPEND SOURCES src/ServerSocket.cpp)
 

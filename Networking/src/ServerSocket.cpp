@@ -4,8 +4,6 @@ namespace ntwk {
 	ServerSocket::ServerSocket(int addressFamily, uint16_t port, std::string_view ipAddress)
 		:m_Socket(ipAddress, port, addressFamily, SOCK_STREAM)
 	{
-		InitWSA();
-
 		m_Socket.Create();
 		m_Socket.Listen();
 	}	
@@ -29,9 +27,6 @@ namespace ntwk {
 	ServerSocket::~ServerSocket()
 	{
 		m_Socket.Close();
-
-		if (isWSAInit)
-			WSACleanup();
 	}
 }
 

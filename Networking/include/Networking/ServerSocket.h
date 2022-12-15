@@ -7,26 +7,6 @@
 #include <string_view>
 
 namespace ntwk {
-
-	WSADATA wsaData;
-	bool isWSAInit = false;
-	
-	NTWK_EXPORT void InitWSA()
-	{
-		// Initialize Winsock
-		if (isWSAInit)
-			return;
-
-		int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-		if (iResult != 0) 
-		{
-			char MSG[512] = "WSAStartup failed: %d\n";
-			snprintf(MSG, sizeof(MSG), MSG, iResult);
-			throw std::runtime_error(MSG);
-		}
-		isWSAInit = true;
-	}
-
 	class NTWK_EXPORT ServerSocket
 	{
 	public:

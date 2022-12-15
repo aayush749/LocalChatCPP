@@ -6,6 +6,7 @@ namespace ntwk {
 		m_PortStr(std::to_string(port)), m_NativeSocket(INVALID_SOCKET),
 		m_IsOpen(false), m_IsListening(false)
 	{
+		Create();
 	}
 
 
