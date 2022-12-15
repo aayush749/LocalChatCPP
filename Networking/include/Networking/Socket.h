@@ -16,6 +16,7 @@ namespace ntwk {
 		Socket(Socket&&) noexcept;
 		Socket(Socket&) = delete;
 		SOCKET& GetSocket() { return m_NativeSocket; }
+		PCSTR GetIPAddress() const { return m_IPAddress.c_str(); }
 		PCSTR GetPortStr() const { return m_PortStr.c_str(); }
 		void Listen();
 
