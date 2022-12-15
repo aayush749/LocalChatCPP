@@ -55,6 +55,26 @@ namespace ntwk {
 		other.m_NativeSocket = INVALID_SOCKET;
 	}
 	
+	int Socket::SendBytes(const std::string_view message)
+	{
+		int iResult = -1;
+		iResult = send(m_NativeSocket, message.data(), message.size(), 0);
+		if (iResult == SOCKET_ERROR)
+		{
+			char MSG[512] = "Could not send message! Error: %ld\n";
+			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
+			throw std::runtime_error(MSG);
+		}
+		return iResult;
+	}
+
+	int Socket::ReceiveBytes(char* buf, int len)
+	{
+		int result = recv(m_NativeSocket, buf, len - 1, 0);
+		buf[len - 1] = NULL;
+		return result;
+	}
+
 	bool Socket::IsListening() const
 	{
 		int iResult = -1;

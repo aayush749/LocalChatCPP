@@ -19,6 +19,8 @@ namespace ntwk {
 		PCSTR GetPortStr() const { return m_PortStr.c_str(); }
 		void Listen();
 
+		int ReceiveBytes(char* buf, int len);
+		int SendBytes(const std::string_view message);
 		bool IsOpen() const { return m_IsOpen; }
 		bool IsListening() const;
 		void Create();
