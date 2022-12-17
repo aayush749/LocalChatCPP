@@ -1,19 +1,23 @@
-#include <Networking/Networking.h>
+﻿#pragma once
+
+#include <Serializable/Serializable.h>
 
 #include <iostream>
 #include <string_view>
 
-class Message
+class Message : public Serializable
 {
 public:
-	Message(const std::string_view content, const std::string_view delimiter);
+	std::wstring_view GetDelimiter() const { return m_Delimiter; }
 
-	std::string_view GetBody() const { return m_Body; }
-	std::string_view GetDelimeter() const { return m_Delimiter; }
+protected:
+	Message(std::wstring_view delimiter)
+		:m_Delimiter(delimiter)
+	{}
 
-private:
-	std::string_view m_Body;
-	std::string_view m_Delimiter;
+protected:
+	inline static std::wstring_view s_DefaultDelimiter = L"♀";
+	std::wstring_view m_Delimiter;
 };
 
-std::ostream& operator<<(std::ostream&, const Message&);
+std::wostream& operator<<(std::wostream&, const Message&);
