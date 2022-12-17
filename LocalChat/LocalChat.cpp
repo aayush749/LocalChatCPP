@@ -7,7 +7,7 @@
 
 int main()
 {
-	ntwk::ServerSocket serverSock(AF_INET, 7777, "localhost");
+	ntwk::ServerSocket serverSock(AF_INET6, 7777, "localhost");
 	std::cout << serverSock << std::endl;
 
 	ntwk::Socket client = serverSock.Accept();

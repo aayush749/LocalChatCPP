@@ -10,16 +10,9 @@ namespace ntwk {
 
 	Socket ServerSocket::Accept()
 	{
-		SOCKADDR_IN clientInfo = { 0 };
+		SOCKADDR clientInfo = { 0 };
 		int size = sizeof(clientInfo);
-		Socket clientSocket = accept(m_Socket.GetSocket(), (SOCKADDR*) &clientInfo, &size);
-		
-		if (clientSocket == INVALID_SOCKET) 
-		{
-			char MSG[1024] = "accept failed: %d\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			throw std::runtime_error(MSG);		
-		}
+		Socket clientSocket = accept(m_Socket.GetSocket(), 0, 0);
 
 		return clientSocket;
 	}

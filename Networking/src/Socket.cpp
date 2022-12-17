@@ -13,6 +13,15 @@ namespace ntwk {
 	Socket::Socket(SOCKET nativeSocket)
 		:m_NativeSocket(nativeSocket)
 	{
+		// Check if the native socket provided is a valid socket
+		if (nativeSocket == INVALID_SOCKET)
+		{
+			char MSG[1024] = "accept failed: %d\n";
+			int ec = WSAGetLastError();
+			snprintf(MSG, sizeof(MSG), MSG, ec);
+			throw std::runtime_error(MSG);
+		}
+
 		// Fill the IP addr, Address Family and Port
 		FillPortAddrFamAndIP();
 
@@ -124,7 +133,7 @@ namespace ntwk {
 		}
 
 		m_NativeSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-		if (m_NativeSocket== INVALID_SOCKET)
+		if (m_NativeSocket == INVALID_SOCKET)
 		{
 			char MSG[1024] = "Error at socket(): %ld\n";
 			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
@@ -186,9 +195,9 @@ namespace ntwk {
 	void Socket::FillPortAddrFamAndIP()
 	{
 		int iResult = -1;
-		SOCKADDR socketAddress = { 0 };
+		SOCKADDR_STORAGE socketAddress = { 0 };
 		int sockAddrSz = sizeof(socketAddress);
-		iResult = getpeername(m_NativeSocket, &socketAddress, &sockAddrSz);
+		iResult = getpeername(m_NativeSocket, (SOCKADDR*) & socketAddress, &sockAddrSz);
 
 		if (iResult == SOCKET_ERROR)
 		{
@@ -197,9 +206,9 @@ namespace ntwk {
 			throw std::runtime_error(MSG);
 		}
 		
-		m_AddressFamily = socketAddress.sa_family;
+		m_AddressFamily = socketAddress.ss_family;
 
-		switch (socketAddress.sa_family)
+		switch (m_AddressFamily)
 		{
 		case AF_INET:
 			{
