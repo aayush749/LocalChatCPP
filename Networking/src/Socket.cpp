@@ -78,7 +78,7 @@ namespace ntwk {
 	bool Socket::IsListening() const
 	{
 		int iResult = -1;
-		BOOL isListening;
+		BOOL isListening = false;
 		int isListeningSz = sizeof(isListening);
 		iResult = getsockopt(m_NativeSocket, SOL_SOCKET,
 			SO_ACCEPTCONN, (char*)&isListening, &isListeningSz);

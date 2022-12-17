@@ -7,15 +7,15 @@
 #include <string_view>
 
 namespace ntwk {
-	class NTWK_EXPORT ServerSocket
+	class ServerSocket
 	{
 	public:
-		ServerSocket(int addressFamily, uint16_t port, std::string_view ipAddress = "localhost");
+		NTWK_EXPORT ServerSocket(int addressFamily, uint16_t port, std::string_view ipAddress = "localhost");
 		
-		Socket Accept();
+		NTWK_EXPORT Socket Accept();
 		NTWK_EXPORT friend std::ostream& operator<<(std::ostream&, const ServerSocket&);
 	
-		~ServerSocket();
+		NTWK_EXPORT ~ServerSocket();
 	private:
 		Socket m_Socket;
 	};

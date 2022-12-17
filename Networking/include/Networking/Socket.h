@@ -8,29 +8,29 @@
 
 
 namespace ntwk {
-	class NTWK_EXPORT Socket
+	class Socket
 	{
 	public:
-		Socket(std::string_view ip, uint16_t port, int addressFamily, int type);
-		Socket(SOCKET);
-		Socket(Socket&&) noexcept;
-		Socket(Socket&) = delete;
-		SOCKET& GetSocket() { return m_NativeSocket; }
-		PCSTR GetIPAddress() const { return m_IPAddress.c_str(); }
-		PCSTR GetPortStr() const { return m_PortStr.c_str(); }
-		void Listen();
+		NTWK_EXPORT Socket(std::string_view ip, uint16_t port, int addressFamily, int type);
+		NTWK_EXPORT Socket(SOCKET);
+		NTWK_EXPORT Socket(Socket&&) noexcept;
+		NTWK_EXPORT Socket(Socket&) = delete;
+		NTWK_EXPORT SOCKET& GetSocket() { return m_NativeSocket; }
+		NTWK_EXPORT PCSTR GetIPAddress() const { return m_IPAddress.c_str(); }
+		NTWK_EXPORT PCSTR GetPortStr() const { return m_PortStr.c_str(); }
+		NTWK_EXPORT void Listen();
 
-		int ReceiveBytes(char* buf, int len);
-		int SendBytes(const std::string_view message);
-		bool IsOpen() const { return m_IsOpen; }
-		bool IsListening() const;
-		void Create();
-		void Close();
+		NTWK_EXPORT int ReceiveBytes(char* buf, int len);
+		NTWK_EXPORT int SendBytes(const std::string_view message);
+		NTWK_EXPORT bool IsOpen() const { return m_IsOpen; }
+		NTWK_EXPORT bool IsListening() const;
+		NTWK_EXPORT void Create();
+		NTWK_EXPORT void Close();
 
-		~Socket();
+		NTWK_EXPORT ~Socket();
 
-		bool operator==(const Socket& other) const { return m_NativeSocket == other.m_NativeSocket; }
-		bool operator==(const SOCKET& other) const { return m_NativeSocket == other; }
+		NTWK_EXPORT bool operator==(const Socket& other) const { return m_NativeSocket == other.m_NativeSocket; }
+		NTWK_EXPORT bool operator==(const SOCKET& other) const { return m_NativeSocket == other; }
 
 		NTWK_EXPORT friend std::ostream& operator<<(std::ostream&, const Socket&);
 	private:
