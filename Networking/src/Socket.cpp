@@ -77,11 +77,54 @@ namespace ntwk {
 		return iResult;
 	}
 
+	int Socket::SendWideBytes(const std::wstring_view message)
+	{
+		// Convert wide chars to chars
+		
+		const wchar_t* wbuffer = message.data();
+		// determine the required buffer size
+
+		size_t buffer_size;
+		wcstombs_s(&buffer_size, NULL, 0, wbuffer, _TRUNCATE);
+
+		// do the actual conversion
+		std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buffer_size);
+		
+		wcstombs_s(&buffer_size, buffer.get(), buffer_size, wbuffer, _TRUNCATE);
+
+		// send the data using normal char version
+		return SendBytes(buffer.get());
+	}
+
 	int Socket::ReceiveBytes(char* buf, int len)
 	{
 		int result = recv(m_NativeSocket, buf, len - 1, 0);
 		buf[len - 1] = NULL;
 		return result;
+	}
+
+	int Socket::ReceiveWideBytes(wchar_t* buf, int len)
+	{
+		// Receive the bytes first
+		std::unique_ptr<char[]> tempCharBuffer = std::make_unique<char[]>(len);
+		int iResult = ReceiveBytes(tempCharBuffer.get(), len);
+
+		if (iResult == SOCKET_ERROR)
+		{
+			char MSG[256] = "Could not receive bytes: %d";
+			auto ec = WSAGetLastError();
+			snprintf(MSG, sizeof(MSG), MSG, ec);
+			throw std::runtime_error(MSG);
+		}
+
+		// Convert the char array to wide char array
+		// Determine buffer size of the output buffer first
+		std::size_t buffer_size;
+		mbstowcs_s(&buffer_size, NULL, 0, tempCharBuffer.get(), _TRUNCATE);
+		
+		mbstowcs_s(&buffer_size, buf, len, tempCharBuffer.get(), _TRUNCATE);
+
+		return iResult;
 	}
 
 	bool Socket::IsListening() const

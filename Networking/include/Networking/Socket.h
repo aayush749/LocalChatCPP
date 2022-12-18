@@ -21,7 +21,11 @@ namespace ntwk {
 		NTWK_EXPORT void Listen();
 
 		NTWK_EXPORT int ReceiveBytes(char* buf, int len);
+		NTWK_EXPORT int ReceiveWideBytes(wchar_t* buf, int len);
+
 		NTWK_EXPORT int SendBytes(const std::string_view message);
+		NTWK_EXPORT int SendWideBytes(const std::wstring_view message);
+
 		NTWK_EXPORT bool IsOpen() const { return m_IsOpen; }
 		NTWK_EXPORT bool IsListening() const;
 		NTWK_EXPORT void Create();
