@@ -13,8 +13,6 @@ if(CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
-project ("LocalChat")
-
 # conan packages include
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
@@ -24,13 +22,3 @@ conan_basic_setup()
 # Include sub-projects.
 add_subdirectory ("LocalChat")
 add_subdirectory ("Networking")
-
-if(MSVC)
-	target_compile_options(LocalChat PUBLIC "/ZI")
-	target_link_options(LocalChat PUBLIC "/INCREMENTAL")
-endif()
-
-# Add the Networking library
-list(APPEND LIBS Networking)
-
-target_link_libraries(LocalChat ${LIBS})

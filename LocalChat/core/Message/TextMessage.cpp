@@ -19,19 +19,20 @@ TextMessage::TextMessage(const TextMessage& other)
 	,m_Body(other.m_Body)
 {}
 
-TextMessage::TextMessage(TextMessage&& other)
+TextMessage::TextMessage(TextMessage&& other) noexcept
 	:Message(other.m_Delimiter)
 	,m_Body(std::move(other.m_Body))
 {}
 
-void TextMessage::Serialize(std::wstring& buffer) const
+void TextMessage::Serialize(_Out_ std::wstring& buffer) const
 {
-	buffer = m_Body;
+	// Add the delimiter as well
+	buffer = m_Body + m_Delimiter.data();
 }
 
-void TextMessage::DeSerialize(std::wstring& buffer) const
+void TextMessage::DeSerialize(_Inout_ std::wstring& buffer) const
 {
-	// nothing to do
+	buffer = m_Body;
 }
 
 TextMessage& TextMessage::operator=(const TextMessage& other)
@@ -41,7 +42,7 @@ TextMessage& TextMessage::operator=(const TextMessage& other)
 	return *this;
 }
 
-TextMessage& TextMessage::operator=(TextMessage&& other)
+TextMessage& TextMessage::operator=(TextMessage&& other) noexcept
 {
 	m_Body = std::move(other.m_Body);
 	std::swap(m_Delimiter, other.m_Delimiter);
