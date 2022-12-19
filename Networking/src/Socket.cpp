@@ -250,7 +250,8 @@ namespace ntwk {
 		if (listen(m_NativeSocket, SOMAXCONN) == SOCKET_ERROR) 
 		{
 			char MSG[1024] = "Listen failed with error: %ld\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
+			auto ec = WSAGetLastError();
+			snprintf(MSG, sizeof(MSG), MSG, ec);
 			throw std::runtime_error(MSG);
 		}
 		m_IsListening = true;

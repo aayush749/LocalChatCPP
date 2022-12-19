@@ -8,13 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Networking/include")
 
-list(APPEND SOURCES ${INCLUDE_DIR}/Networking/Socket.h)
-list(APPEND SOURCES ${INCLUDE_DIR}/Networking/ServerSocket.h)
-list(APPEND SOURCES ${INCLUDE_DIR}/Networking/Networking.h)
-
 list(APPEND SOURCES src/EntryPoint.cpp)
 list(APPEND SOURCES src/Socket.cpp)
 list(APPEND SOURCES src/ServerSocket.cpp)
+list(APPEND SOURCES src/CharSocketStream.cpp)
 
 if(WIN32)
     if (MSVC)

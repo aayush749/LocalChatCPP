@@ -19,10 +19,14 @@ namespace ntwk {
 		NTWK_EXPORT PCSTR GetIPAddress() const { return m_IPAddress.c_str(); }
 		NTWK_EXPORT PCSTR GetPortStr() const { return m_PortStr.c_str(); }
 		NTWK_EXPORT void Listen();
+		NTWK_EXPORT void Bind();
+		NTWK_EXPORT int Connect(const std::string_view ipAddress, uint16_t port, int addressFamily);
+
 
 		NTWK_EXPORT int ReceiveBytes(char* buf, int len);
 		NTWK_EXPORT int ReceiveWideBytes(wchar_t* buf, int len);
 
+		NTWK_EXPORT int SendNBytes(const char* str, int n);
 		NTWK_EXPORT int SendBytes(const std::string_view message);
 		NTWK_EXPORT int SendWideBytes(const std::wstring_view message);
 
@@ -48,6 +52,8 @@ namespace ntwk {
 		bool m_IsOpen;
 		mutable bool m_IsListening;
 		SOCKET m_NativeSocket;
+		SOCKADDR* m_SocketAddress;
+		std::size_t m_SocketAddressLength;
 	};
 
 }

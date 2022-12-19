@@ -5,6 +5,7 @@ namespace ntwk {
 		:m_Socket(ipAddress, port, addressFamily, SOCK_STREAM)
 	{
 		m_Socket.Create();
+		m_Socket.Bind();
 		m_Socket.Listen();
 	}	
 
