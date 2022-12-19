@@ -28,6 +28,7 @@ namespace ntwk {
 
 		NTWK_EXPORT int SendNBytes(const char* str, int n);
 		NTWK_EXPORT int SendBytes(const std::string_view message);
+		NTWK_EXPORT int SendNWideBytes(const wchar_t* str, int n);
 		NTWK_EXPORT int SendWideBytes(const std::wstring_view message);
 
 		NTWK_EXPORT bool IsOpen() const { return m_IsOpen; }

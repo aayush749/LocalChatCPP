@@ -12,6 +12,7 @@ list(APPEND SOURCES src/EntryPoint.cpp)
 list(APPEND SOURCES src/Socket.cpp)
 list(APPEND SOURCES src/ServerSocket.cpp)
 list(APPEND SOURCES src/CharSocketStream.cpp)
+list(APPEND SOURCES src/WCharSocketStream.cpp)
 
 if(WIN32)
     if (MSVC)

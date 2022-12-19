@@ -1,5 +1,10 @@
 #include <Networking/Socket.h>
 
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Web.Syndication.h>>
+
+#include <sstream>
+
 namespace ntwk {
 	Socket::Socket(std::string_view ip, uint16_t port, int addressFamily, int type)
 		:m_IPAddress(ip), m_Port(port), m_AddressFamily(addressFamily), m_Type(type),
@@ -102,6 +107,25 @@ namespace ntwk {
 		// send the data using normal char version
 		return SendBytes(buffer.get());
 	}
+	
+	int Socket::SendNWideBytes(const wchar_t* message, int n)
+	{
+		// Convert wide chars to chars
+		
+		const wchar_t* wbuffer = message;
+		// determine the required buffer size
+
+		size_t buffer_size = n;
+		wcstombs_s(&buffer_size, NULL, 0, wbuffer, _TRUNCATE);
+
+		// do the actual conversion
+		std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buffer_size);
+		
+		wcstombs_s(&buffer_size, buffer.get(), buffer_size, wbuffer, _TRUNCATE);
+
+		// send the data using normal char version
+		return SendBytes(buffer.get());
+	}
 
 	int Socket::ReceiveBytes(char* buf, int len)
 	{
@@ -110,11 +134,26 @@ namespace ntwk {
 		return result;
 	}
 
+	static std::wstring ConvertNarrowStr2WideStr(const std::string& as)
+	{
+		size_t outSize = as.size() * 2 + 2;
+		auto buf = std::make_unique<wchar_t[]>(outSize);
+		swprintf(buf.get(), L"%S", as.c_str());
+		std::wstring rval = buf.get();
+
+		rval.resize(rval.capacity());
+
+		return rval;
+	}
+
 	int Socket::ReceiveWideBytes(wchar_t* buf, int len)
 	{
 		// Receive the bytes first
-		std::unique_ptr<char[]> tempCharBuffer = std::make_unique<char[]>(len);
-		int iResult = ReceiveBytes(tempCharBuffer.get(), len);
+		std::string buffer = winrt::to_string(std::wstring(len, 0).data());
+		
+		buffer.resize(buffer.capacity());
+
+		int iResult = ReceiveBytes(buffer.data(), buffer.capacity());
 
 		if (iResult == SOCKET_ERROR)
 		{
@@ -123,14 +162,13 @@ namespace ntwk {
 			snprintf(MSG, sizeof(MSG), MSG, ec);
 			throw std::runtime_error(MSG);
 		}
-
-		// Convert the char array to wide char array
-		// Determine buffer size of the output buffer first
-		std::size_t buffer_size;
-		mbstowcs_s(&buffer_size, NULL, 0, tempCharBuffer.get(), _TRUNCATE);
 		
-		mbstowcs_s(&buffer_size, buf, len, tempCharBuffer.get(), _TRUNCATE);
-
+		std::wstring out = ConvertNarrowStr2WideStr(buffer);
+		for (int i = 0; i < out.length(); i++)
+		{
+			buf[i] = out[i];
+		}
+		
 		return iResult;
 	}
 
