@@ -4,14 +4,14 @@ namespace ntwk {
 	Socket::Socket(std::string_view ip, uint16_t port, int addressFamily, int type)
 		:m_IPAddress(ip), m_Port(port), m_AddressFamily(addressFamily), m_Type(type),
 		m_PortStr(std::to_string(port)), m_NativeSocket(INVALID_SOCKET),
-		m_IsOpen(false), m_IsListening(false)
+		m_IsOpen(false), m_IsListening(false), m_SocketAddress(nullptr), m_SocketAddressLength(0)
 	{
 		Create();
 	}
 
 
 	Socket::Socket(SOCKET nativeSocket)
-		:m_NativeSocket(nativeSocket)
+		:m_NativeSocket(nativeSocket), m_SocketAddress(nullptr), m_SocketAddressLength(0)
 	{
 		// Check if the native socket provided is a valid socket
 		if (nativeSocket == INVALID_SOCKET)
@@ -51,7 +51,9 @@ namespace ntwk {
 		m_Port(other.m_Port), m_PortStr(std::move(other.m_PortStr)),
 		m_IsOpen(other.m_IsOpen),
 		m_IsListening(other.m_IsListening),
-		m_NativeSocket(other.m_NativeSocket)
+		m_NativeSocket(other.m_NativeSocket),
+		m_SocketAddress(other.m_SocketAddress),
+		m_SocketAddressLength(other.m_SocketAddressLength)
 	{
 		//move constructor
 		other.m_AddressFamily = -1;
@@ -64,10 +66,10 @@ namespace ntwk {
 		other.m_NativeSocket = INVALID_SOCKET;
 	}
 	
-	int Socket::SendBytes(const std::string_view message)
+	NTWK_EXPORT int Socket::SendNBytes(const char* str, int n)
 	{
 		int iResult = -1;
-		iResult = send(m_NativeSocket, message.data(), message.size(), 0);
+		iResult = send(m_NativeSocket, str, n, 0);
 		if (iResult == SOCKET_ERROR)
 		{
 			char MSG[512] = "Could not send message! Error: %ld\n";
@@ -75,6 +77,11 @@ namespace ntwk {
 			throw std::runtime_error(MSG);
 		}
 		return iResult;
+	}
+
+	int Socket::SendBytes(const std::string_view message)
+	{
+		return SendNBytes(message.data(), message.size());
 	}
 
 	int Socket::SendWideBytes(const std::wstring_view message)
@@ -142,6 +149,8 @@ namespace ntwk {
 		}
 
 		m_IsListening = (bool)isListening;
+
+		return m_IsListening;
 	}
 
 	void Socket::Create()
@@ -184,18 +193,53 @@ namespace ntwk {
 			throw std::runtime_error(MSG);
 		}
 
-		// Bind
-		iResult = SOCKET_ERROR;
-		iResult = bind(m_NativeSocket, result->ai_addr, (int)result->ai_addrlen);
+		m_SocketAddress = result->ai_addr;
+		m_SocketAddressLength = result->ai_addrlen;
+
+		m_IsOpen = true;
+	}
+
+	int Socket::Connect(const std::string_view ipAddress, uint16_t port, int addressFamily)
+	{
+		int iResult = SOCKET_ERROR;
+		if (addressFamily == AF_INET)
+		{
+			sockaddr_in clientService = { 0 };
+			clientService.sin_family = AF_INET;
+			clientService.sin_addr.s_addr = inet_addr("127.0.0.1");
+			clientService.sin_port = htons(port);
+
+			iResult = connect(m_NativeSocket, (SOCKADDR*)&clientService, sizeof(clientService));
+		}
+		else if (addressFamily == AF_INET6)
+		{
+			// TODO: Unimplemented for now!
+		}
+
+		if (iResult == SOCKET_ERROR)
+		{
+			char MSG[1024] = "Could not connect to %s:%d. Error: %ld\n";
+			auto ec = WSAGetLastError();
+			snprintf(MSG, sizeof(MSG), MSG, ipAddress.data(), port, ec);
+
+			throw std::runtime_error(MSG);
+		}
+
+		return iResult;
+	}
+
+	void Socket::Bind()
+	{
+		// Bind to a particular port (ie. m_Port)
+		int iResult = SOCKET_ERROR;
+		iResult = bind(m_NativeSocket, m_SocketAddress, (int)m_SocketAddressLength);
 		if (iResult == SOCKET_ERROR)
 		{
 			char MSG[1024] = "bind failed with error: %d\n";
 			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			freeaddrinfo(result);
+			//freeaddrinfo(result);
 			throw std::runtime_error(MSG);
 		}
-
-		m_IsOpen = true;
 	}
 
 	void Socket::Listen()
