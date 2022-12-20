@@ -2,11 +2,13 @@
 #include <Networking/WCharSocketStream.h>
 #include <Networking/ServerSocket.h>
 
+#include <Message/TextMessage.h>
+
 #include <LCClient/LCCLient.h>
 
 #include <iostream>
 
-const std::string HOST = "192.168.1.101";
+const std::string HOST = "192.168.1.100";
 const uint16_t PORT = 7777;
 
 int main()
@@ -53,16 +55,28 @@ int main()
 	//	std::cout << "Error: " << e.what() << std::endl;
 	//}
 
-	LCClient client(HOST, PORT);
-	
-	ntwk::WCharSocketStream& stream = client.GetStream();
-
-	std::wstring message = L"";
-
-	while (message != L"quit")
+	try
 	{
-		std::cout << "Enter your message Client" << client.GetHash() << " : ";
-		getline(std::wcin, message);
-		stream << message + wchar_t(12);
+		std::cout << "Trying to connect to server at: " << HOST << ":" << PORT << std::endl << std::endl;
+
+		LCClient client(HOST, PORT);
+	
+		ntwk::WCharSocketStream& stream = client.GetStream();
+
+		std::wstring message = L"";
+
+		while (message != L"quit")
+		{
+			std::cout << "Enter your message Client" << client.GetHash() << " : ";
+			getline(std::wcin, message);
+			TextMessage tm(2, message);
+			std::wstring serializedMsg = L"";
+			tm.Serialize(serializedMsg);
+			stream << serializedMsg;
+		}
+	}
+	catch (const std::runtime_error& e)
+	{
+		std::cerr << "Could not connect to Local Chat Server : " << e.what();
 	}
 }

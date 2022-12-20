@@ -6,9 +6,9 @@
 class TextMessage : public Message
 {
 public:
-	TextMessage();
-	TextMessage(const std::wstring_view);
-	TextMessage(const std::wstring_view, const std::wstring_view delimiter);
+	TextMessage(uint64_t recipientHash);
+	TextMessage(uint64_t recipientHash, const std::wstring_view);
+	TextMessage(uint64_t recipientHash, const std::wstring_view, const std::wstring_view delimiter);
 	TextMessage(const TextMessage&); // copy constructor
 	TextMessage(TextMessage&&) noexcept;	// move constructor
 

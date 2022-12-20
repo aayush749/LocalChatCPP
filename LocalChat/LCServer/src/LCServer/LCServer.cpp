@@ -1,7 +1,8 @@
 #include <LCServer/LCServer.h>
 
 LCServer::LCServer(const std::optional<unsigned int> maxClients, const std::string_view ipAddress, const int addressFamily, const uint16_t port)
-	:m_MaxClients(maxClients), m_ServerShouldStop(false), m_ServerSock(addressFamily, port, ipAddress)
+	:m_MaxClients(maxClients), m_ServerShouldStop(false), m_ServerSock(addressFamily, port, ipAddress),
+	m_ListenerThread(&LCServer::ListenForClients, this), m_MessageDispatcherThread(&LCServer::MessageDispatcher, this)
 {}
 
 void LCServer::ListenForClients()
@@ -9,14 +10,48 @@ void LCServer::ListenForClients()
 	while (!m_ServerShouldStop)
 	{
 		ntwk::Socket clientSocket = m_ServerSock.Accept();
-
+		std::cout << "Connected to client: "<<clientSocket << std::endl;
 		s_ClientCtr++;
 		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;
-		clientSocket.ReceiveBytes((char*)&clientHash, sizeof(clientHash));
 
 		ClientApp app(clientHash, std::move(clientSocket));
 		
 		AddClient(clientHash, std::move(app));
+		std::cout << "Added client with Hash: " << clientHash << std::endl;
+	}
+}
+
+ntwk::Socket& LCServer::GetClientSockFromClientHash(uint64_t clientHash)
+{
+	return m_ServerDB.at(clientHash).GetSocket();
+}
+
+void LCServer::MessageDispatcher()
+{
+	while (!m_ServerShouldStop)
+	{
+		for (const auto& [clientHash, app] : m_ServerDB)
+		{
+			auto& pendingMsgs = app.GetPendingMessages();
+			for (auto it = pendingMsgs.begin();
+				it != pendingMsgs.end(); it++)
+			{
+				auto& msg = *it;
+				uint64_t recipient = msg->GetRecipientHash();
+				try
+				{
+					SendMsgToClient(*msg, recipient);
+				
+					// Message sent, now remove the message from the pending message list
+					app.RemoveMessage(it);
+				}
+				catch (const std::runtime_error& e)
+				{
+					std::cerr << "Error sending message to Client" << recipient
+							  <<" : " << e.what();
+				}
+			}
+		}
 	}
 }
 

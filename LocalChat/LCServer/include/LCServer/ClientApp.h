@@ -5,10 +5,12 @@
 #include <Message/Message.h>
 
 #include <memory>
+#include <thread>
 #include <forward_list>
+#include <list>
 
 /*
-A container for a client, which manages sending messages to and from the server
+A container for a client, which manages sending and receiving messages to and from the server side
 */
 class ClientApp
 {
@@ -20,11 +22,22 @@ public:
 	
 	ntwk::Socket& GetSocket() { return m_Socket; }
 	StreamTp& GetStream() { return m_Stream; }
-	
+	std::list<MessageSPtr>& GetPendingMessages() { return m_PendingMessages; }
+
+	/*
+	Listens for incoming messages
+	NOTE: Currently terminates messages with only first character of delimiter!!
+	*/
+	void Listen();
+
+	void RemoveMessage(std::list<MessageSPtr>::iterator iterator);
 	void ProcessMessage(const Message& msg);
 private:
+	std::wstring m_DefaultDelimiter;
 	uint64_t m_Hash;
-	std::forward_list<MessageSPtr> m_PendingMessages;
+	std::list<MessageSPtr> m_PendingMessages;
 	StreamTp m_Stream;
 	ntwk::Socket m_Socket;
+	std::thread m_ListenerThread;
+	bool m_ClientShouldStop;
 };

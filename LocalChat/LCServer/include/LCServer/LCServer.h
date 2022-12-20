@@ -9,6 +9,7 @@
 #include <LCServer/ClientApp.h>
 
 #include <optional>
+#include <thread>
 #include <memory>
 #include <utility>
 #include <unordered_map>
@@ -33,12 +34,20 @@ public:
 
 	// Makes the server listen to incoming client connections
 	void ListenForClients();
+
+	ntwk::Socket& GetClientSockFromClientHash(uint64_t clientHash);
+
+	// Process incoming messages and act according to it
+	void MessageDispatcher();
 	void RemoveClient(ClientHashTp clientHash);
+
+	// Temporary Getters for thread
+	std::thread& GetListenerThread() { return m_ListenerThread; }
+	std::thread& GetMsgDispatcherThread() { return m_MessageDispatcherThread; }
 
 	virtual ~LCServer();
 private:
 	void SendMsgToClient(Message& msgRef, ClientHashTp clientHash);
-	void AddPendingMessageForClient();
 	void AddClient(ClientHashTp clientHash, ClientApp&& app);
 private:
 	ntwk::ServerSocket m_ServerSock;
@@ -48,4 +57,8 @@ private:
 
 	inline static ClientHashTp s_ClientCtr = 0;
 	inline static ClientHashTp s_BaseClientHash = 1000;
+
+private:
+	std::thread m_ListenerThread;
+	std::thread m_MessageDispatcherThread;
 };
