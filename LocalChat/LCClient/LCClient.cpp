@@ -12,7 +12,7 @@ int main()
 		ntwk::Socket sockt("localhost", 7778, AF_INET, SOCK_STREAM);
 
 		sockt.Bind();
-		sockt.Connect("localhost", 7777, AF_INET);
+		sockt.Connect("127.0.0.1", 7777, AF_INET);
 
 		ntwk::WCharSocketStream css(sockt);
 

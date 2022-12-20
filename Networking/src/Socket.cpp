@@ -244,7 +244,7 @@ namespace ntwk {
 		{
 			sockaddr_in clientService = { 0 };
 			clientService.sin_family = AF_INET;
-			clientService.sin_addr.s_addr = inet_addr("127.0.0.1");
+			clientService.sin_addr.s_addr = inet_addr(ipAddress.data());
 			clientService.sin_port = htons(port);
 
 			iResult = connect(m_NativeSocket, (SOCKADDR*)&clientService, sizeof(clientService));
