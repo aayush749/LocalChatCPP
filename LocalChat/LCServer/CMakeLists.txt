@@ -21,6 +21,7 @@ list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/LCServer/include)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/Message.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/TextMessage.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCServer/src/LCServer/LCServer.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCServer/src/LCServer/ClientApp.cpp)
 
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCServer/LCServLauncher.cpp)
 

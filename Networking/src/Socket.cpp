@@ -69,6 +69,8 @@ namespace ntwk {
 		other.m_IsOpen = false;
 		other.m_IsListening = false;
 		other.m_NativeSocket = INVALID_SOCKET;
+		other.m_SocketAddress = nullptr;
+		other.m_SocketAddressLength = 0;
 	}
 	
 	NTWK_EXPORT int Socket::SendNBytes(const char* str, int n)

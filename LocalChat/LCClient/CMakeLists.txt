@@ -13,12 +13,15 @@ project("LCClient")
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Networking/include)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/core)
+list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/include)
 
 #sources
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/Message.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/TextMessage.cpp)
 
-list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClient.cpp)
+
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/LCClient.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClientMain.cpp)
 
 #libraries
 list(APPEND LIBS Networking)

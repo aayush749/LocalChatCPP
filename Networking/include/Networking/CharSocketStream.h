@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Networking/Socket.h>
 
 namespace ntwk {
