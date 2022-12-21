@@ -98,35 +98,21 @@ namespace ntwk {
 		const wchar_t* wbuffer = message.data();
 		// determine the required buffer size
 
-		size_t buffer_size;
-		wcstombs_s(&buffer_size, NULL, 0, wbuffer, _TRUNCATE);
-
-		// do the actual conversion
+		size_t buffer_size = (wcslen(message.data()) + 1) * 2;
+		size_t convertedChars = 0;
 		std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buffer_size);
 		
-		wcstombs_s(&buffer_size, buffer.get(), buffer_size, wbuffer, _TRUNCATE);
-
+		// do the actual conversion
+		wcstombs_s(&convertedChars, buffer.get(), buffer_size, wbuffer, _TRUNCATE);
+		
 		// send the data using normal char version
 		return SendBytes(buffer.get());
 	}
 	
 	int Socket::SendNWideBytes(const wchar_t* message, int n)
 	{
-		// Convert wide chars to chars
-		
-		const wchar_t* wbuffer = message;
-		// determine the required buffer size
-
-		size_t buffer_size = n;
-		wcstombs_s(&buffer_size, NULL, 0, wbuffer, _TRUNCATE);
-
-		// do the actual conversion
-		std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buffer_size);
-		
-		wcstombs_s(&buffer_size, buffer.get(), buffer_size, wbuffer, _TRUNCATE);
-
-		// send the data using normal char version
-		return SendBytes(buffer.get());
+		std::wstring_view tempView(message, n);
+		return SendWideBytes(tempView);
 	}
 
 	int Socket::ReceiveBytes(char* buf, int len)

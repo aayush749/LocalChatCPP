@@ -1,4 +1,5 @@
 #include <Message/TextMessage.h>
+#include <utils/Conversion.h>
 
 TextMessage::TextMessage(uint64_t recipientHash)
 	:Message(recipientHash, Message::s_DefaultDelimiter)
@@ -27,12 +28,22 @@ TextMessage::TextMessage(TextMessage&& other) noexcept
 void TextMessage::Serialize(_Out_ std::wstring& buffer) const
 {
 	// Add the delimiter as well
-	buffer = m_Body + m_Delimiter.data();
+	buffer = L"TxtMsg|" + m_RecipientHash + L'|';
+	buffer += m_Body + m_Delimiter.data();
 }
 
-void TextMessage::DeSerialize(_Inout_ std::wstring& buffer) const
+TextMessage TextMessage::DeSerialize(_In_ std::wstring& buffer)
 {
-	buffer = m_Body;
+	size_t ind = buffer.find_first_of(L'|') + 1;
+	buffer = buffer.substr(ind);
+	std::wstring_view recipientView = buffer.substr(0, buffer.find_first_of('|'));
+	
+	std::wstring_view msgView = buffer.substr(buffer.find_first_of(L'|') + 1);
+	
+	uint64_t recipient = cnvrt::To<uint64_t>(recipientView);
+	std::wstring_view content = msgView;
+
+	return TextMessage(recipient, content);
 }
 
 TextMessage& TextMessage::operator=(const TextMessage& other)

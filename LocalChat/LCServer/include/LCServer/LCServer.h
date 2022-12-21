@@ -27,7 +27,8 @@ class LCServer
 	using ClientHashTp = uint64_t;
 	using IPAddressTp = std::string_view;
 	using MessageSPtr = std::shared_ptr<Message>;
-	using ServerDB = std::unordered_map<ClientHashTp, ClientApp&>;
+	using ClientAppSPtr = std::shared_ptr<ClientApp>;
+	using ServerDB = std::unordered_map<ClientHashTp, ClientAppSPtr>;
 
 public:
 	LCServer(const std::optional<unsigned int> maxClients, const std::string_view ipAddress = "0.0.0.0", const int addressFamily = AF_INET, const uint16_t port = 7777);
@@ -41,14 +42,10 @@ public:
 	void MessageDispatcher();
 	void RemoveClient(ClientHashTp clientHash);
 
-	// Temporary Getters for thread
-	std::thread& GetListenerThread() { return m_ListenerThread; }
-	std::thread& GetMsgDispatcherThread() { return m_MessageDispatcherThread; }
-
 	virtual ~LCServer();
 private:
 	void SendMsgToClient(Message& msgRef, ClientHashTp clientHash);
-	void AddClient(ClientHashTp clientHash, ClientApp&& app);
+	void AddClient(ClientHashTp clientHash, ClientAppSPtr app);
 private:
 	ntwk::ServerSocket m_ServerSock;
 	ServerDB m_ServerDB;

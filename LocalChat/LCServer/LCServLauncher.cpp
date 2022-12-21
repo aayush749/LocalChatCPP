@@ -14,7 +14,4 @@ int main()
 		ip.clear();
 		getline(std::cin, ip);
 	}
-
-	GLOBAL_SERVER.GetListenerThread().join();
-	GLOBAL_SERVER.GetListenerThread().join();
 }

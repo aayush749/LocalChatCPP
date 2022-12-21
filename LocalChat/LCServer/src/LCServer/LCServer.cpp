@@ -14,16 +14,16 @@ void LCServer::ListenForClients()
 		s_ClientCtr++;
 		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;
 
-		ClientApp app(clientHash, std::move(clientSocket));
-		
-		AddClient(clientHash, std::move(app));
+		ClientAppSPtr appSPtr = std::make_shared<ClientApp>(clientHash, std::move(clientSocket));
+
+		AddClient(clientHash, appSPtr);
 		std::cout << "Added client with Hash: " << clientHash << std::endl;
 	}
 }
 
 ntwk::Socket& LCServer::GetClientSockFromClientHash(uint64_t clientHash)
 {
-	return m_ServerDB.at(clientHash).GetSocket();
+	return m_ServerDB.at(clientHash)->GetSocket();
 }
 
 void LCServer::MessageDispatcher()
@@ -32,7 +32,7 @@ void LCServer::MessageDispatcher()
 	{
 		for (const auto& [clientHash, app] : m_ServerDB)
 		{
-			auto& pendingMsgs = app.GetPendingMessages();
+			auto& pendingMsgs = app->GetPendingMessages();
 			for (auto it = pendingMsgs.begin();
 				it != pendingMsgs.end(); it++)
 			{
@@ -43,7 +43,7 @@ void LCServer::MessageDispatcher()
 					SendMsgToClient(*msg, recipient);
 				
 					// Message sent, now remove the message from the pending message list
-					app.RemoveMessage(it);
+					app->RemoveMessage(it);
 				}
 				catch (const std::runtime_error& e)
 				{
@@ -55,13 +55,13 @@ void LCServer::MessageDispatcher()
 	}
 }
 
-void LCServer::AddClient(ClientHashTp clientHash, ClientApp&& app)
+void LCServer::AddClient(ClientHashTp clientHash, ClientAppSPtr app)
 {
 	// Check if max number of clients is reached or not
 	if (m_MaxClients.has_value() && m_ServerDB.size() == m_MaxClients)
 	{
 		// Send a "Max Clients Reached" message to client
-		app.GetStream() << (int) LCServerError::MAX_CLIENTS_REACHED;
+		app->GetStream() << (int) LCServerError::MAX_CLIENTS_REACHED;
 
 		return;
 	}
@@ -92,7 +92,7 @@ void LCServer::SendMsgToClient(Message& msgRef, ClientHashTp clientHash)
 	std::wstring serializedMsg;
 	msgRef.Serialize(serializedMsg);
 
-	ClientApp& app = clientIt->second;
+	ClientApp& app = *(clientIt->second);
 
 	ntwk::Socket& clientSock = app.GetSocket();
 
@@ -107,4 +107,10 @@ void LCServer::SendMsgToClient(Message& msgRef, ClientHashTp clientHash)
 LCServer::~LCServer()
 {
 	m_ServerShouldStop = true;
+
+	if (m_ListenerThread.joinable())
+		m_ListenerThread.join();
+
+	if (m_MessageDispatcherThread.joinable())
+		m_MessageDispatcherThread.join();
 }

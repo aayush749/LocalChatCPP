@@ -13,7 +13,9 @@ public:
 	TextMessage(TextMessage&&) noexcept;	// move constructor
 
 	virtual void Serialize(_Out_ std::wstring& buffer) const override;
-	virtual void DeSerialize(_Inout_ std::wstring& buffer) const override;
+	
+	// Currently, only handles for default delimiter
+	static TextMessage DeSerialize(_In_ std::wstring& buffer);
 
 	TextMessage& operator=(const TextMessage&);	// copy assignment operator
 	TextMessage& operator=(TextMessage&&) noexcept; // move assignment operator

@@ -1,5 +1,7 @@
 ﻿#include <LCClient/LCClient.h>
 
+#include <utils/Conversion.h>
+
 LCClient::LCClient(const std::string& serverIP, uint16_t serverPort)
 	:m_Socket("localhost", 7778, AF_INET, SOCK_STREAM), m_Stream(m_Socket)
 {
@@ -9,8 +11,17 @@ LCClient::LCClient(const std::string& serverIP, uint16_t serverPort)
 
 	// Get the client hash
 	m_Hash = 0;
-	//m_Stream >> m_Hash;
+	
 	std::wstring buff;
-	getline(m_Stream, buff, L'♀');
-	m_Hash = *reinterpret_cast<decltype(m_Hash)*>(buff.data());
+	getline(m_Stream, buff, L'\r');
+	
+	m_Hash = cnvrt::To<uint64_t>(buff);
+
+	// Send the default delimiter to be used
+	m_Stream << L"\r ";
+}
+
+LCClient::~LCClient()
+{
+	m_Socket.Close();
 }

@@ -11,7 +11,7 @@ class LCClient
 	using StreamTp = ntwk::WCharSocketStream;
 public:
 	LCClient(const std::string& serverIP, uint16_t serverPort);
-
+	virtual ~LCClient();
 	uint64_t GetHash() const { return m_Hash; }
 	StreamTp& GetStream() { return m_Stream; }
 private:

@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-const std::string HOST = "192.168.1.100";
+const std::string HOST = "127.0.0.1";
 const uint16_t PORT = 7777;
 
 int main()

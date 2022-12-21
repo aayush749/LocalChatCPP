@@ -16,7 +16,7 @@ protected:
 	{}
 
 protected:
-	inline static std::wstring_view s_DefaultDelimiter = L"♀";
+	inline static std::wstring_view s_DefaultDelimiter = L"\r";
 	std::wstring_view m_Delimiter;
 	uint64_t m_RecipientHash;
 };

@@ -2,18 +2,38 @@
 #include <LCServer/LCServer.h>
 
 #include <Message/TextMessage.h>
+#include <utils/SerializationUtils.h>
 
 extern LCServer GLOBAL_SERVER;
 
 ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
-	:m_Hash(clientHash), m_Socket(std::move(socket)), m_Stream(StreamTp(m_Socket)), m_PendingMessages(), m_ClientShouldStop(false)
+	:m_Hash(clientHash), m_Socket(std::move(socket)), m_Stream(m_Socket), m_PendingMessages(), m_ClientShouldStop(false)
 	, m_ListenerThread(&ClientApp::Listen, this)
 {
 	// Send the client hash to the client
-	m_Stream << m_Hash << L'♀';
+	
+	std::wstring serializedHash = Serialize<std::wstring>(m_Hash);
+	serializedHash += L'\r';
+	m_Stream << serializedHash;
 
-	// Receive the delimiter used for messages, by the client
-	m_Stream >> m_DefaultDelimiter;
+	// Receive the delimiter used for messages, by the client (can't be blank space (ASCII-32))
+	getline(m_Stream, m_DefaultDelimiter, L' ');
+}
+
+ClientApp::ClientApp(ClientApp&& other) noexcept
+	:m_Hash(other.m_Hash), m_Socket(std::move(other.m_Socket)),
+	m_Stream(StreamTp(m_Socket)), m_PendingMessages(std::move(other.m_PendingMessages)), m_ClientShouldStop(false),
+	m_ListenerThread()
+{
+	other.m_Hash = 0;
+	other.m_ClientShouldStop = true;
+	m_ListenerThread.swap(other.m_ListenerThread);
+}
+
+ClientApp::~ClientApp()
+{
+	if (m_ListenerThread.joinable())
+		m_ListenerThread.join();
 }
 
 void ClientApp::Listen()
@@ -25,10 +45,8 @@ void ClientApp::Listen()
 
 		if (buffer._Starts_with(L"TxtMsg|"))
 		{
-			size_t ind = buffer.find_first_of('|');
-			std::wstring_view msgView = std::wstring_view(buffer).substr(ind);
-			const TextMessage* tm = reinterpret_cast<const TextMessage*>(msgView.data());
-			ProcessMessage(*tm);
+			TextMessage tm = TextMessage::DeSerialize(buffer);
+			ProcessMessage(tm);
 		}
 		// Similarly would check for other message types
 		else
