@@ -1,17 +1,23 @@
 #include <LCServer/LCServer.h>
+#include <Logger/Logger.h>
 
 #include <iostream>
 
-LCServer GLOBAL_SERVER({}, "0.0.0.0", AF_INET, 7777);
+constexpr const char* IP = "0.0.0.0";
+constexpr const int PORT = 7777;
+
+LCServer GLOBAL_SERVER({}, IP, AF_INET, PORT);
 
 int main()
 {
-	std::cout << "Enter \"quit\" to terminate server!\n\n";
-	std::cout << "Listening to incoming clients on port 7777...\n";
-	std::string ip;
-	while (ip != "quit")
+	Logger::init();
+	Logger::log("Enter \"quit\" to terminate server!", Log::INFO);
+	Logger::logfmt<Log::WARNING>("Listening to incoming clients on port %d...", PORT);
+
+	std::string input;
+	while (input != "quit")
 	{
-		ip.clear();
-		getline(std::cin, ip);
+		input.clear();
+		getline(std::cin, input);
 	}
 }

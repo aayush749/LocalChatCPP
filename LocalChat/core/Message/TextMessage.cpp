@@ -2,43 +2,45 @@
 #include <utils/Conversion.h>
 
 TextMessage::TextMessage(uint64_t recipientHash)
-	:Message(recipientHash, Message::s_DefaultDelimiter)
+	:Message(recipientHash)
 {}
 
 TextMessage::TextMessage(uint64_t recipientHash, const std::wstring_view content)
-	:Message(recipientHash, Message::s_DefaultDelimiter)
-	,m_Body(content)
-{}
-
-TextMessage::TextMessage(uint64_t recipientHash, const std::wstring_view content, const std::wstring_view delimiter)
-	:Message(recipientHash, delimiter)
+	:Message(recipientHash)
 	,m_Body(content)
 {}
 
 TextMessage::TextMessage(const TextMessage& other)
-	:Message(other.m_RecipientHash, other.m_Delimiter)
+	:Message(other.m_RecipientHash)
 	,m_Body(other.m_Body)
 {}
 
 TextMessage::TextMessage(TextMessage&& other) noexcept
-	:Message(other.m_RecipientHash, other.m_Delimiter)
+	:Message(other.m_RecipientHash)
 	,m_Body(std::move(other.m_Body))
-{}
+{
+	other.m_Body.clear();
+}
 
 void TextMessage::Serialize(_Out_ std::wstring& buffer) const
 {
-	// Add the delimiter as well
-	buffer = L"TxtMsg|" + m_RecipientHash + L'|';
-	buffer += m_Body + m_Delimiter.data();
+	// Add the delimiter (NULL char) as well
+	buffer = L"TxtMsg|";
+	buffer += std::to_wstring(m_RecipientHash);
+	buffer += L'|';
+	buffer += m_Body;
+	buffer += L'\0';
 }
 
-TextMessage TextMessage::DeSerialize(_In_ std::wstring& buffer)
+TextMessage TextMessage::DeSerialize(_In_ const std::wstring_view& buffer)
 {
-	size_t ind = buffer.find_first_of(L'|') + 1;
-	buffer = buffer.substr(ind);
-	std::wstring_view recipientView = buffer.substr(0, buffer.find_first_of('|'));
-	
-	std::wstring_view msgView = buffer.substr(buffer.find_first_of(L'|') + 1);
+	std::wstring_view temp = buffer;
+	size_t ind = temp.find_first_of(L'|') + 1;
+	temp = temp.substr(ind);
+	ind = temp.find_first_of(L'|');
+	std::wstring_view recipientView = temp.substr(0, ind);
+	ind = temp.find_first_of(L'|');
+	std::wstring_view msgView = temp.substr(ind + 1);
 	
 	uint64_t recipient = cnvrt::To<uint64_t>(recipientView);
 	std::wstring_view content = msgView;
@@ -49,13 +51,12 @@ TextMessage TextMessage::DeSerialize(_In_ std::wstring& buffer)
 TextMessage& TextMessage::operator=(const TextMessage& other)
 {
 	m_Body = other.m_Body;
-	m_Delimiter = other.m_Delimiter;
 	return *this;
 }
 
 TextMessage& TextMessage::operator=(TextMessage&& other) noexcept
 {
 	m_Body = std::move(other.m_Body);
-	std::swap(m_Delimiter, other.m_Delimiter);
+	other.m_Body.clear();
 	return *this;
 }

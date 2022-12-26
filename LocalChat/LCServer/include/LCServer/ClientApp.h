@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <thread>
-#include <forward_list>
 #include <list>
 
 /*
@@ -35,7 +34,6 @@ public:
 	void RemoveMessage(std::list<MessageSPtr>::iterator iterator);
 	void ProcessMessage(const Message& msg);
 private:
-	std::wstring m_DefaultDelimiter;
 	uint64_t m_Hash;
 	std::list<MessageSPtr> m_PendingMessages;
 	StreamTp m_Stream;

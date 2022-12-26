@@ -1,3 +1,4 @@
+#include <Logger/Logger.h>
 #include <Networking/Socket.h>
 
 #include <winrt/Windows.Foundation.Collections.h>
@@ -21,10 +22,7 @@ namespace ntwk {
 		// Check if the native socket provided is a valid socket
 		if (nativeSocket == INVALID_SOCKET)
 		{
-			char MSG[1024] = "accept failed: %d\n";
-			int ec = WSAGetLastError();
-			snprintf(MSG, sizeof(MSG), MSG, ec);
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("accept failed: %d\n", WSAGetLastError());
 		}
 
 		// Fill the IP addr, Address Family and Port
@@ -43,9 +41,7 @@ namespace ntwk {
 
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[1024] = "Error encountered while creating Socket object from native socket: %ld\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("Error encountered while creating Socket object from native socket: %ld\n", WSAGetLastError());
 		}
 	}
 
@@ -73,15 +69,13 @@ namespace ntwk {
 		other.m_SocketAddressLength = 0;
 	}
 	
-	NTWK_EXPORT int Socket::SendNBytes(const char* str, int n)
+	int Socket::SendNBytes(const char* str, int n)
 	{
 		int iResult = -1;
 		iResult = send(m_NativeSocket, str, n, 0);
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[512] = "Could not send message! Error: %ld\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("Could not send message! Error: %ld\n", WSAGetLastError());
 		}
 		return iResult;
 	}
@@ -117,9 +111,24 @@ namespace ntwk {
 
 	int Socket::ReceiveBytes(char* buf, int len)
 	{
-		int result = recv(m_NativeSocket, buf, len - 1, 0);
-		buf[len - 1] = NULL;
+		int result = recv(m_NativeSocket, buf, len, 0);
 		return result;
+	}
+
+	bool Socket::SetNonBlockingMode(bool shouldBeNonBlocking)
+	{
+		int iResult = -1;
+#if _WIN32
+		u_long arg = shouldBeNonBlocking ? 1 : 0;
+		iResult = ioctlsocket(m_NativeSocket, FIONBIO, &arg);
+#else 
+		int flags = fcntl(m_NativeSocket, F_GETFL, 0);
+		flags = inShouldBeNonBlocking ?
+			(flags | O_NONBLOCK) : (flags & ~O_NONBLOCK);
+		fcntl(m_NativeSocket, F_SETFL, flags);
+#endif
+		
+		return (bool) iResult;
 	}
 
 	static std::wstring ConvertNarrowStr2WideStr(const std::string& as)
@@ -145,10 +154,7 @@ namespace ntwk {
 
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[256] = "Could not receive bytes: %d";
-			auto ec = WSAGetLastError();
-			snprintf(MSG, sizeof(MSG), MSG, ec);
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::WARNING>("Could not receive bytes: %d", WSAGetLastError());
 		}
 		
 		std::wstring out = ConvertNarrowStr2WideStr(buffer);
@@ -169,9 +175,7 @@ namespace ntwk {
 			SO_ACCEPTCONN, (char*)&isListening, &isListeningSz);
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[1024] = "Error encountered while creating Socket object from native socket: %ld\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("Error encountered while creating Socket object from native socket: %ld\n", WSAGetLastError());
 		}
 
 		m_IsListening = (bool)isListening;
@@ -205,18 +209,14 @@ namespace ntwk {
 		iResult = getaddrinfo(NULL, GetPortStr(), &hints, &result);
 		if (iResult != 0)
 		{
-			char MSG[64] = "getaddrinfo failed: %d\n";
-			snprintf(MSG, sizeof(MSG), MSG, iResult);
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("getaddrinfo failed: %d\n", iResult);
 		}
 
 		m_NativeSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 		if (m_NativeSocket == INVALID_SOCKET)
 		{
-			char MSG[1024] = "Error at socket(): %ld\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
 			freeaddrinfo(result);
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("Error at socket(): %ld\n", WSAGetLastError());
 		}
 
 		m_SocketAddress = result->ai_addr;
@@ -244,11 +244,7 @@ namespace ntwk {
 
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[1024] = "Could not connect to %s:%d. Error: %ld\n";
-			auto ec = WSAGetLastError();
-			snprintf(MSG, sizeof(MSG), MSG, ipAddress.data(), port, ec);
-
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR, 2048>("Could not connect to %s:%d. Error: %ld\n", m_IPAddress.c_str(), m_Port, WSAGetLastError());
 		}
 
 		return iResult;
@@ -261,10 +257,7 @@ namespace ntwk {
 		iResult = bind(m_NativeSocket, m_SocketAddress, (int)m_SocketAddressLength);
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[1024] = "bind failed with error: %d\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			//freeaddrinfo(result);
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("bind failed with error: %d\n", WSAGetLastError());
 		}
 	}
 
@@ -275,10 +268,7 @@ namespace ntwk {
 
 		if (listen(m_NativeSocket, SOMAXCONN) == SOCKET_ERROR) 
 		{
-			char MSG[1024] = "Listen failed with error: %ld\n";
-			auto ec = WSAGetLastError();
-			snprintf(MSG, sizeof(MSG), MSG, ec);
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("Listen failed with error: %ld\n", WSAGetLastError());
 		}
 		m_IsListening = true;
 	}
@@ -315,9 +305,7 @@ namespace ntwk {
 
 		if (iResult == SOCKET_ERROR)
 		{
-			char MSG[1024] = "Error encountered while creating Socket object from native socket: %ld\n";
-			snprintf(MSG, sizeof(MSG), MSG, WSAGetLastError());
-			throw std::runtime_error(MSG);
+			Logger::logfmt<Log::ERR>("Error encountered while creating Socket object from native socket: %ld\n", WSAGetLastError());
 		}
 		
 		m_AddressFamily = socketAddress.ss_family;
@@ -349,10 +337,17 @@ namespace ntwk {
 			break;
 		}
 	}
+	
+	std::string Socket::ToString() const
+	{
+		std::ostringstream iss;
+		iss << "IP: " << m_IPAddress << ", PORT: " << m_Port;
+		return iss.str();
+	}
 }
 
 std::ostream& ntwk::operator<<(std::ostream& os, const ntwk::Socket& socket)
 {
-	os << "IP: "<<socket.m_IPAddress<<", PORT: "<<socket.m_Port;
+	os << socket.ToString();
 	return os;
 }

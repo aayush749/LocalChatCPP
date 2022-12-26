@@ -11,6 +11,7 @@ project("LCServer")
 
 
 #include dirs
+list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Logger/include)
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Networking/include)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/core)

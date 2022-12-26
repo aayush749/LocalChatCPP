@@ -1,3 +1,4 @@
+#include <Logger/Logger.h>
 #include <Networking/Networking.h>
 
 #include <cstdio>
@@ -7,14 +8,15 @@ WSADATA wsaData;
 
 void InitWSA()
 {
+    // Initialize Logger
+    Logger::init();
+
     // Initialize Winsock
 
     int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0)
     {
-        char MSG[512] = "WSAStartup failed: %d\n";
-        snprintf(MSG, sizeof(MSG), MSG, iResult);
-        throw std::runtime_error(MSG);
+        Logger::logfmt<Log::ERR>("WSAStartup failed: %d\n", iResult);
     }
 }
 

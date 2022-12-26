@@ -1,4 +1,5 @@
 #include <LCServer/LCServer.h>
+#include <Logger/Logger.h>
 
 LCServer::LCServer(const std::optional<unsigned int> maxClients, const std::string_view ipAddress, const int addressFamily, const uint16_t port)
 	:m_MaxClients(maxClients), m_ServerShouldStop(false), m_ServerSock(addressFamily, port, ipAddress),
@@ -10,14 +11,15 @@ void LCServer::ListenForClients()
 	while (!m_ServerShouldStop)
 	{
 		ntwk::Socket clientSocket = m_ServerSock.Accept();
-		std::cout << "Connected to client: "<<clientSocket << std::endl;
+		clientSocket.SetNonBlockingMode(true);
+		Logger::logfmt<Log::INFO>("Connected to client: %s", clientSocket.ToString().c_str());
 		s_ClientCtr++;
 		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;
 
 		ClientAppSPtr appSPtr = std::make_shared<ClientApp>(clientHash, std::move(clientSocket));
 
 		AddClient(clientHash, appSPtr);
-		std::cout << "Added client with Hash: " << clientHash << std::endl;
+		Logger::logfmt<Log::INFO>("Added client with Hash: %ld", clientHash);
 	}
 }
 

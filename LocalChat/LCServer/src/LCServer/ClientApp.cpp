@@ -1,4 +1,5 @@
-﻿#include <LCServer/ClientApp.h>
+﻿#include <Logger/Logger.h>
+#include <LCServer/ClientApp.h>
 #include <LCServer/LCServer.h>
 
 #include <Message/TextMessage.h>
@@ -7,45 +8,66 @@
 extern LCServer GLOBAL_SERVER;
 
 ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
-	:m_Hash(clientHash), m_Socket(std::move(socket)), m_Stream(m_Socket), m_PendingMessages(), m_ClientShouldStop(false)
-	, m_ListenerThread(&ClientApp::Listen, this)
+	:m_Hash(clientHash), m_Socket(std::move(socket))
+	,m_Stream(m_Socket), m_PendingMessages()
+	,m_ClientShouldStop(false)
 {
-	// Send the client hash to the client
+	m_Socket.SetNonBlockingMode(true);
 	
-	std::wstring serializedHash = Serialize<std::wstring>(m_Hash);
-	serializedHash += L'\r';
-	m_Stream << serializedHash;
+	// Wait for the client to signal that its ready
+	m_Stream.clear();
+	std::wstring buf;
+	while(buf.empty())
+		getline(m_Stream, buf, L'\0');
 
-	// Receive the delimiter used for messages, by the client (can't be blank space (ASCII-32))
-	getline(m_Stream, m_DefaultDelimiter, L' ');
+	if (buf == L"start")
+	{
+		// Send the client hash to the client
+		std::wstring serializedHash = Serialize<std::wstring>(m_Hash);
+		serializedHash += L'\0';
+		//m_Stream << serializedHash;
+		m_Stream.write(serializedHash.c_str(), serializedHash.length());
+		// Start listening
+		m_ListenerThread = std::thread(&ClientApp::Listen, this);
+	}
 }
 
 ClientApp::ClientApp(ClientApp&& other) noexcept
 	:m_Hash(other.m_Hash), m_Socket(std::move(other.m_Socket)),
 	m_Stream(StreamTp(m_Socket)), m_PendingMessages(std::move(other.m_PendingMessages)), m_ClientShouldStop(false),
-	m_ListenerThread()
+	m_ListenerThread(std::move(other.m_ListenerThread))
 {
+	//m_Socket.SetNonBlockingMode(true);
 	other.m_Hash = 0;
 	other.m_ClientShouldStop = true;
-	m_ListenerThread.swap(other.m_ListenerThread);
 }
 
 ClientApp::~ClientApp()
 {
+	m_ClientShouldStop = true;
 	if (m_ListenerThread.joinable())
 		m_ListenerThread.join();
 }
 
 void ClientApp::Listen()
 {
+	Logger::logfmt<Log::INFO>("Started Listening for Client#%ld...", m_Hash);
+	std::wistream& clientIStrm = dynamic_cast<std::wistream&>(m_Stream);
+
 	while (!m_ClientShouldStop)
 	{
 		std::wstring buffer;
-		getline(m_Stream, buffer, m_DefaultDelimiter[0]);
+		getline(clientIStrm, buffer, L'\0');
+
+		if (buffer.empty())
+			continue;
+
+		if (buffer == L"close")
+			m_ClientShouldStop = true;
 
 		if (buffer._Starts_with(L"TxtMsg|"))
 		{
-			TextMessage tm = TextMessage::DeSerialize(buffer);
+			TextMessage tm = TextMessage::DeSerialize(buffer.data());
 			ProcessMessage(tm);
 		}
 		// Similarly would check for other message types
@@ -79,7 +101,7 @@ void ClientApp::ProcessMessage(const Message& msg)
 			text.Serialize(content);
 		
 			// Send the message
-			m_Stream << content;
+			recipientSocket.SendWideBytes(content);
 		}
 		catch (const std::out_of_range& e)
 		{
@@ -93,5 +115,5 @@ void ClientApp::ProcessMessage(const Message& msg)
 	}
 
 	// When nothing matches
-	throw std::runtime_error("Unidentified message type passed.");
+	//throw std::runtime_error("Unidentified message type passed.");s
 }

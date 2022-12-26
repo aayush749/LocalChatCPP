@@ -1,3 +1,4 @@
+#include <Logger/Logger.h>
 #include <Networking/Networking.h>
 #include <Networking/WCharSocketStream.h>
 #include <Networking/ServerSocket.h>
@@ -13,7 +14,7 @@ const uint16_t PORT = 7777;
 
 int main()
 {
-	std::wcout << L"Hello from the LCClient\n";
+	Logger::logfmt<Log::INFO>("Hello from the LCClient\n");
 	//try
 	//{
 	//	/*ntwk::Socket sockt("localhost", 7778, AF_INET, SOCK_STREAM);
@@ -57,8 +58,8 @@ int main()
 
 	try
 	{
-		std::cout << "Trying to connect to server at: " << HOST << ":" << PORT << std::endl << std::endl;
-
+		Logger::logfmt<Log::WARNING>("Trying to connect to server at: %s:%d", HOST.c_str(), PORT);
+		
 		LCClient client(HOST, PORT);
 	
 		ntwk::WCharSocketStream& stream = client.GetStream();
@@ -77,6 +78,6 @@ int main()
 	}
 	catch (const std::runtime_error& e)
 	{
-		std::cerr << "Could not connect to Local Chat Server : " << e.what();
+		Logger::logfmt<Log::ERR>("Could not connect to Local Chat Server : %s", e.what());
 	}
 }

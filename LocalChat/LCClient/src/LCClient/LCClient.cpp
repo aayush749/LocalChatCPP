@@ -7,21 +7,24 @@ LCClient::LCClient(const std::string& serverIP, uint16_t serverPort)
 {
 	m_Socket.Bind();
 	m_Socket.Connect(serverIP, serverPort, AF_INET);
-	// Connected
 
+	m_Socket.SetNonBlockingMode(true);
+
+	// Tell the server to start
+	/*m_Stream << L"start\0";*/
+	m_Stream.write(L"start\0", sizeof(L"start\0"));
 	// Get the client hash
 	m_Hash = 0;
 	
 	std::wstring buff;
-	getline(m_Stream, buff, L'\r');
+	while (buff.empty())
+		getline(m_Stream, buff, L'\0');
 	
 	m_Hash = cnvrt::To<uint64_t>(buff);
-
-	// Send the default delimiter to be used
-	m_Stream << L"\r ";
 }
 
 LCClient::~LCClient()
 {
+	m_Stream << "close\0";
 	m_Socket.Close();
 }

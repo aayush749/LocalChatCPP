@@ -10,6 +10,7 @@ cmake_policy(SET CMP0079 NEW)
 project("LCClient")
 
 #include dirs
+list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Logger/include)
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Networking/include)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/core)

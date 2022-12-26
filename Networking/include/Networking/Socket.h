@@ -21,7 +21,7 @@ namespace ntwk {
 		NTWK_EXPORT void Listen();
 		NTWK_EXPORT void Bind();
 		NTWK_EXPORT int Connect(const std::string_view ipAddress, uint16_t port, int addressFamily);
-
+		NTWK_EXPORT bool SetNonBlockingMode(bool shouldBeNonBlocking);
 
 		NTWK_EXPORT int ReceiveBytes(char* buf, int len);
 		NTWK_EXPORT int ReceiveWideBytes(wchar_t* buf, int len);
@@ -41,6 +41,7 @@ namespace ntwk {
 		NTWK_EXPORT bool operator==(const Socket& other) const { return m_NativeSocket == other.m_NativeSocket; }
 		NTWK_EXPORT bool operator==(const SOCKET& other) const { return m_NativeSocket == other; }
 
+		NTWK_EXPORT std::string ToString() const;
 		NTWK_EXPORT friend std::ostream& operator<<(std::ostream&, const Socket&);
 	private:
 		void FillPortAddrFamAndIP();
