@@ -71,12 +71,14 @@ namespace ntwk {
 	
 	int Socket::SendNBytes(const char* str, int n)
 	{
+		SetNonBlockingMode(true);
 		int iResult = -1;
 		iResult = send(m_NativeSocket, str, n, 0);
 		if (iResult == SOCKET_ERROR)
 		{
 			Logger::logfmt<Log::ERR>("Could not send message! Error: %ld\n", WSAGetLastError());
 		}
+		SetNonBlockingMode(false);
 		return iResult;
 	}
 
@@ -99,8 +101,18 @@ namespace ntwk {
 		// do the actual conversion
 		wcstombs_s(&convertedChars, buffer.get(), buffer_size, wbuffer, _TRUNCATE);
 		
+		// Only send valid bytes (i.e. which are greater than zero)
+		size_t actualSize = 0;
+		for (size_t i = 0; i < buffer_size; i++)
+		{
+			if (buffer[i] < 0)
+				break;
+			
+			actualSize++;
+		}
+
 		// send the data using normal char version
-		return SendBytes(buffer.get());
+		return SendNBytes(buffer.get(), actualSize);
 	}
 	
 	int Socket::SendNWideBytes(const wchar_t* message, int n)

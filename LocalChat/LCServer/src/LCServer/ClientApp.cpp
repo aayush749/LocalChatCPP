@@ -12,21 +12,19 @@ ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
 	,m_Stream(m_Socket), m_PendingMessages()
 	,m_ClientShouldStop(false)
 {
-	m_Socket.SetNonBlockingMode(true);
 	
 	// Wait for the client to signal that its ready
 	m_Stream.clear();
 	std::wstring buf;
-	while(buf.empty())
-		getline(m_Stream, buf, L'\0');
+	getline(m_Stream, buf, L'\0');
 
 	if (buf == L"start")
 	{
 		// Send the client hash to the client
 		std::wstring serializedHash = Serialize<std::wstring>(m_Hash);
 		serializedHash += L'\0';
-		//m_Stream << serializedHash;
-		m_Stream.write(serializedHash.c_str(), serializedHash.length());
+		m_Stream << serializedHash;
+		
 		// Start listening
 		m_ListenerThread = std::thread(&ClientApp::Listen, this);
 	}
@@ -37,7 +35,6 @@ ClientApp::ClientApp(ClientApp&& other) noexcept
 	m_Stream(StreamTp(m_Socket)), m_PendingMessages(std::move(other.m_PendingMessages)), m_ClientShouldStop(false),
 	m_ListenerThread(std::move(other.m_ListenerThread))
 {
-	//m_Socket.SetNonBlockingMode(true);
 	other.m_Hash = 0;
 	other.m_ClientShouldStop = true;
 }
@@ -54,10 +51,11 @@ void ClientApp::Listen()
 	Logger::logfmt<Log::INFO>("Started Listening for Client#%ld...", m_Hash);
 	std::wistream& clientIStrm = dynamic_cast<std::wistream&>(m_Stream);
 
+	std::wstring buffer;
 	while (!m_ClientShouldStop)
 	{
-		std::wstring buffer;
 		getline(clientIStrm, buffer, L'\0');
+		clientIStrm.clear();	// clear the input buffer as soon as you read the data
 
 		if (buffer.empty())
 			continue;
@@ -105,7 +103,7 @@ void ClientApp::ProcessMessage(const Message& msg)
 		}
 		catch (const std::out_of_range& e)
 		{
-			std::cerr << "Recipient" << recipientHash << " was not found, message not sent. Adding to pending message list.";
+			Logger::logfmt<Log::ERR>("Recipient #%ld was not found, message not sent. Adding to pending message list.", recipientHash);
 			m_PendingMessages.push_back(std::make_shared<TextMessage>(text));
 		}
 	}
@@ -115,5 +113,5 @@ void ClientApp::ProcessMessage(const Message& msg)
 	}
 
 	// When nothing matches
-	//throw std::runtime_error("Unidentified message type passed.");s
+	//throw std::runtime_error("Unidentified message type passed.");
 }

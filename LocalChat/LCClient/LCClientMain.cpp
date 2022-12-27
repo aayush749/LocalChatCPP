@@ -15,47 +15,7 @@ const uint16_t PORT = 7777;
 int main()
 {
 	Logger::logfmt<Log::INFO>("Hello from the LCClient\n");
-	//try
-	//{
-	//	/*ntwk::Socket sockt("localhost", 7778, AF_INET, SOCK_STREAM);
-
-	//	sockt.Bind();
-	//	sockt.Connect("127.0.0.1", 7777, AF_INET);
-
-	//	ntwk::WCharSocketStream css(sockt);
-
-	//	std::wstring input;
-	//	while (input != L"quit")
-	//	{
-	//		input.clear();
-	//		getline(css, input, (wchar_t)12);
-	//		std::wcout << input << std::endl;
-	//	}*/
-	//	ntwk::ServerSocket ss(AF_INET, 7777, "0.0.0.0");
-
-	//	std::cout << "Accepting incoming connections...\n";
-	//	ntwk::Socket client = ss.Accept();
-
-	//	ntwk::WCharSocketStream css(client);
-
-	//	std::wstring ip = L"";
-
-	//	do
-	//	{
-	//		if (ip == L"quit")
-	//			continue;
-	//		std::wcout << L"Enter your message: ";
-	//		getline(std::wcin, ip);
-	//		
-	//		// Write to network
-	//		css << ip << std::endl;
-	//	} while (ip != L"quit");
-	//}
-	//catch (const std::exception& e)
-	//{
-	//	std::cout << "Error: " << e.what() << std::endl;
-	//}
-
+	
 	try
 	{
 		Logger::logfmt<Log::WARNING>("Trying to connect to server at: %s:%d", HOST.c_str(), PORT);

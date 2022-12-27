@@ -11,7 +11,6 @@ void LCServer::ListenForClients()
 	while (!m_ServerShouldStop)
 	{
 		ntwk::Socket clientSocket = m_ServerSock.Accept();
-		clientSocket.SetNonBlockingMode(true);
 		Logger::logfmt<Log::INFO>("Connected to client: %s", clientSocket.ToString().c_str());
 		s_ClientCtr++;
 		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;
@@ -49,8 +48,7 @@ void LCServer::MessageDispatcher()
 				}
 				catch (const std::runtime_error& e)
 				{
-					std::cerr << "Error sending message to Client" << recipient
-							  <<" : " << e.what();
+					Logger::logfmt<Log::ERR>("Error sending message to Client%ld : %s", recipient, e.what());
 				}
 			}
 		}
