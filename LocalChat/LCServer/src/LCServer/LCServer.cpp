@@ -24,14 +24,19 @@ void LCServer::CreateThenAddNewClient(uint64_t clientHash, ntwk::Socket&& client
 {
 	ClientAppSPtr appSPtr = std::make_shared<ClientApp>(clientHash, std::move(clientSocket));
 
-	try
+
+	if (appSPtr->IsValidClient())
 	{
-		AddClient(clientHash, appSPtr);
-		Logger::logfmt<Log::INFO>("Added client with Hash: %ld", clientHash);
-	}
-	catch (const std::runtime_error& e)
-	{
-		Logger::logfmt<Log::ERR>("Error while adding client: %s", e.what());
+		// Proceed to add the valid client
+		try
+		{
+			AddClient(clientHash, appSPtr);
+			Logger::logfmt<Log::INFO>("Added client with Hash: %ld", clientHash);
+		}
+		catch (const std::runtime_error& e)
+		{
+			Logger::logfmt<Log::ERR>("Error while adding client: %s", e.what());
+		}
 	}
 }
 

@@ -4,13 +4,27 @@
 
 #include <Message/TextMessage.h>
 #include <utils/SerializationUtils.h>
+#include <utils/Conversion.h>
 
 extern LCServer GLOBAL_SERVER;
+
+static bool IsANum(const std::wstring& str)
+{
+	for (wchar_t c : str)
+	{
+		if (!isdigit(c))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 
 ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
 	:m_Hash(clientHash), m_Socket(std::move(socket))
 	,m_Stream(m_Socket), m_PendingMessages()
-	,m_ClientShouldStop(false)
+	,m_ClientShouldStop(false), m_IsValidClient(false)
 {
 	
 	// Wait for the client to signal that its ready
@@ -25,16 +39,43 @@ ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
 		serializedHash += L'\0';
 		m_Stream << serializedHash;
 		
+		m_IsValidClient = true;
+
 		// Start listening
 		m_ListenerThread = std::thread(&ClientApp::Listen, this);
+	}
+	else if (IsANum(buf))
+	{
+		// If it is a number
+		uint64_t tempHash = cnvrt::To<uint64_t>(buf);
+		bool clientExists = ::GLOBAL_SERVER.ClientExists(tempHash);
+
+		if (clientExists)
+		{
+			// Mark as a valid client
+			m_IsValidClient = true;
+
+			// Send an OK confirmation to the client
+			m_Stream << L"OK\0";
+
+			// Start Listening to client
+			m_ListenerThread = std::thread(&ClientApp::Listen, this);
+		}
+		else
+		{
+			// Mark as an invalid client
+			m_IsValidClient = false;
+			m_Stream << L"ERR\0";
+		}
 	}
 }
 
 ClientApp::ClientApp(ClientApp&& other) noexcept
-	:m_Hash(other.m_Hash), m_Socket(std::move(other.m_Socket)),
+	:m_IsValidClient(other.m_IsValidClient), m_Hash(other.m_Hash), m_Socket(std::move(other.m_Socket)),
 	m_Stream(StreamTp(m_Socket)), m_PendingMessages(std::move(other.m_PendingMessages)), m_ClientShouldStop(false),
 	m_ListenerThread(std::move(other.m_ListenerThread))
 {
+	other.m_IsValidClient = false;
 	other.m_Hash = 0;
 	other.m_ClientShouldStop = true;
 }
@@ -42,8 +83,11 @@ ClientApp::ClientApp(ClientApp&& other) noexcept
 ClientApp::~ClientApp()
 {
 	m_ClientShouldStop = true;
+	m_IsValidClient = false;
 	if (m_ListenerThread.joinable())
 		m_ListenerThread.join();
+
+	m_Socket.Close();
 }
 
 void ClientApp::Listen()
@@ -103,7 +147,7 @@ void ClientApp::ProcessMessage(const Message& msg)
 		}
 		catch (const std::out_of_range& e)
 		{
-			Logger::logfmt<Log::ERR>("Recipient #%ld was not found, message not sent. Adding to pending message list.", recipientHash);
+			Logger::logfmt<Log::ERR, 2048>("Recipient #%ld was not found, message not sent. Adding to pending message list: %s", recipientHash, e.what());
 			m_PendingMessages.push_back(std::make_shared<TextMessage>(text));
 		}
 	}

@@ -23,23 +23,7 @@ int main()
 {
 	try
 	{
-		std::ifstream configFStrm(CONFIG_FILE_PATH.c_str());
-		if (!configFStrm.is_open())
-		{
-			Logger::logfmt<Log::WARNING>("Config file not found at path, creating new");
-			// TODO: Create new config file
-			Logger::LogWarning("Quitting for now!");
-			std::exit(1);
-		}
-		else
-		{
-			inipp::Ini<char> ini;
-			ini.parse(configFStrm);
-			auto server = ini.sections["LCServerInfo"];
-			auto user = ini.sections["UserProfile"];
-			Logger::logfmt<Log::INFO>("LCServer Host Address: %s, LCServer Port: %d", server.at("host").c_str(), std::stoi(server.at("port")));
-			Logger::logfmt<Log::INFO>("Hash#: %ld, UserName: %s", std::stoull(user.at("hash")), user.at("name").c_str());
-		}
+		LCClient client(CONFIG_FILE_PATH);
 	}
 	catch (const std::exception& e)
 	{

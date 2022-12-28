@@ -40,6 +40,8 @@ public:
 
 	ntwk::Socket& GetClientSockFromClientHash(uint64_t clientHash);
 
+	const bool ClientExists(uint64_t clientHash) { return m_ServerDB.find(clientHash) != m_ServerDB.end(); }
+
 	// Process incoming messages and act according to it
 	void MessageDispatcher();
 	void RemoveClient(ClientHashTp clientHash);

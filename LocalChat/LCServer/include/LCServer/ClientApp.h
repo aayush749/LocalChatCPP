@@ -25,6 +25,8 @@ public:
 	StreamTp& GetStream() { return m_Stream; }
 	std::list<MessageSPtr>& GetPendingMessages() { return m_PendingMessages; }
 
+	bool IsValidClient() const { return m_IsValidClient; }
+
 	/*
 	Listens for incoming messages
 	NOTE: Currently terminates messages with only first character of delimiter!!
@@ -34,6 +36,7 @@ public:
 	void RemoveMessage(std::list<MessageSPtr>::iterator iterator);
 	void ProcessMessage(const Message& msg);
 private:
+	bool m_IsValidClient;
 	uint64_t m_Hash;
 	std::list<MessageSPtr> m_PendingMessages;
 	StreamTp m_Stream;
