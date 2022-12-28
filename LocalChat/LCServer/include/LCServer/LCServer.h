@@ -12,6 +12,8 @@
 #include <thread>
 #include <memory>
 #include <utility>
+#include <vector>
+#include <future>
 #include <unordered_map>
 #include <forward_list>
 
@@ -46,6 +48,7 @@ public:
 private:
 	void SendMsgToClient(Message& msgRef, ClientHashTp clientHash);
 	void AddClient(ClientHashTp clientHash, ClientAppSPtr app);
+	void CreateThenAddNewClient(uint64_t clientHash, ntwk::Socket&& clientSocket);
 private:
 	ntwk::ServerSocket m_ServerSock;
 	ServerDB m_ServerDB;
@@ -55,6 +58,8 @@ private:
 	inline static ClientHashTp s_ClientCtr = 0;
 	inline static ClientHashTp s_BaseClientHash = 1000;
 
+private:
+	std::vector<std::future<void>> m_ClientCreationFuturesVec;
 private:
 	std::thread m_ListenerThread;
 	std::thread m_MessageDispatcherThread;

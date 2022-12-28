@@ -16,10 +16,22 @@ void LCServer::ListenForClients()
 		s_ClientCtr++;
 		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;
 
-		ClientAppSPtr appSPtr = std::make_shared<ClientApp>(clientHash, std::move(clientSocket));
+		m_ClientCreationFuturesVec.emplace_back(std::async(std::launch::async, &LCServer::CreateThenAddNewClient, this, clientHash, std::move(clientSocket)));
+	}
+}
 
+void LCServer::CreateThenAddNewClient(uint64_t clientHash, ntwk::Socket&& clientSocket)
+{
+	ClientAppSPtr appSPtr = std::make_shared<ClientApp>(clientHash, std::move(clientSocket));
+
+	try
+	{
 		AddClient(clientHash, appSPtr);
 		Logger::logfmt<Log::INFO>("Added client with Hash: %ld", clientHash);
+	}
+	catch (const std::runtime_error& e)
+	{
+		Logger::logfmt<Log::ERR>("Error while adding client: %s", e.what());
 	}
 }
 
