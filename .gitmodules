@@ -1,3 +1,6 @@
 [submodule "Logger"]
 	path = Logger
 	url = git@github.com:aayush749/Logger.git
+[submodule "LocalChat/LCClient/vendor/inipp"]
+	path = LocalChat/LCClient/vendor/inipp
+	url = git@github.com:mcmtroffaes/inipp.git

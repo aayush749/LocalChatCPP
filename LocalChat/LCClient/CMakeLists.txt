@@ -9,8 +9,11 @@ cmake_policy(SET CMP0079 NEW)
 
 project("LCClient")
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/inipp)
+
 #include dirs
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Logger/include)
+list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/inipp)
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Networking/include)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/core)
@@ -28,6 +31,7 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClientMain.cpp)
 
 #libraries
 list(APPEND LIBS Networking)
+list(APPEND LIBS inipp::inipp)
 
 add_executable(LCClient ${SOURCES})
 

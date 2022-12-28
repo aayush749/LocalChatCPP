@@ -7,37 +7,42 @@
 
 #include <LCClient/LCCLient.h>
 
+#include <inipp/inipp.h>
+
 #include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <cstdlib>
 
 const std::string HOST = "127.0.0.1";
 const uint16_t PORT = 7777;
 
+std::filesystem::path CONFIG_FILE_PATH = std::filesystem::path(getenv("USERPROFILE")).concat("/Documents/LocalChatCpp/config/config.ini");
+
 int main()
 {
-	Logger::logfmt<Log::INFO>("Hello from the LCClient\n");
-	
 	try
 	{
-		Logger::logfmt<Log::WARNING>("Trying to connect to server at: %s:%d", HOST.c_str(), PORT);
-		
-		LCClient client(HOST, PORT);
-	
-		ntwk::WCharSocketStream& stream = client.GetStream();
-
-		std::wstring message = L"";
-
-		while (message != L"quit")
+		std::ifstream configFStrm(CONFIG_FILE_PATH.c_str());
+		if (!configFStrm.is_open())
 		{
-			std::cout << "Enter your message Client" << client.GetHash() << " : ";
-			getline(std::wcin, message);
-			TextMessage tm(2, message);
-			std::wstring serializedMsg = L"";
-			tm.Serialize(serializedMsg);
-			stream << serializedMsg;
+			Logger::logfmt<Log::WARNING>("Config file not found at path, creating new");
+			// TODO: Create new config file
+			Logger::LogWarning("Quitting for now!");
+			std::exit(1);
+		}
+		else
+		{
+			inipp::Ini<char> ini;
+			ini.parse(configFStrm);
+			auto server = ini.sections["LCServerInfo"];
+			auto user = ini.sections["UserProfile"];
+			Logger::logfmt<Log::INFO>("LCServer Host Address: %s, LCServer Port: %d", server.at("host").c_str(), std::stoi(server.at("port")));
+			Logger::logfmt<Log::INFO>("Hash#: %ld, UserName: %s", std::stoull(user.at("hash")), user.at("name").c_str());
 		}
 	}
-	catch (const std::runtime_error& e)
+	catch (const std::exception& e)
 	{
-		Logger::logfmt<Log::ERR>("Could not connect to Local Chat Server : %s", e.what());
+		Logger::logfmt<Log::ERR>("Error processing config file: %s", e.what());
 	}
 }
