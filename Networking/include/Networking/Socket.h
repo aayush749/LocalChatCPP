@@ -22,6 +22,7 @@ namespace ntwk {
 		NTWK_EXPORT void Bind();
 		NTWK_EXPORT int Connect(const std::string_view ipAddress, uint16_t port, int addressFamily);
 		NTWK_EXPORT bool SetNonBlockingMode(bool shouldBeNonBlocking);
+		NTWK_EXPORT bool SetNoDelay(bool shouldNotDelay);
 
 		NTWK_EXPORT int ReceiveBytes(char* buf, int len);
 		NTWK_EXPORT int ReceiveWideBytes(wchar_t* buf, int len);

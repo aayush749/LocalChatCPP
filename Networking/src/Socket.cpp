@@ -71,14 +71,12 @@ namespace ntwk {
 	
 	int Socket::SendNBytes(const char* str, int n)
 	{
-		SetNonBlockingMode(true);
 		int iResult = -1;
 		iResult = send(m_NativeSocket, str, n, 0);
 		if (iResult == SOCKET_ERROR)
 		{
 			Logger::logfmt<Log::ERR>("Could not send message! Error: %ld\n", WSAGetLastError());
 		}
-		SetNonBlockingMode(false);
 		return iResult;
 	}
 
@@ -141,6 +139,12 @@ namespace ntwk {
 #endif
 		
 		return (bool) iResult;
+	}
+
+	bool Socket::SetNoDelay(bool shouldNotDelay)
+	{
+		int iResult = setsockopt(m_NativeSocket, SOL_SOCKET, TCP_NODELAY, (const char*)&shouldNotDelay, sizeof(shouldNotDelay));
+		return iResult == 0;
 	}
 
 	static std::wstring ConvertNarrowStr2WideStr(const std::string& as)

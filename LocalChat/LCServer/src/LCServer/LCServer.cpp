@@ -11,6 +11,7 @@ void LCServer::ListenForClients()
 	while (!m_ServerShouldStop)
 	{
 		ntwk::Socket clientSocket = m_ServerSock.Accept();
+		clientSocket.SetNoDelay(true);
 		Logger::logfmt<Log::INFO>("Connected to client: %s", clientSocket.ToString().c_str());
 		s_ClientCtr++;
 		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;

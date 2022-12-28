@@ -8,6 +8,8 @@ LCClient::LCClient(const std::string& serverIP, uint16_t serverPort)
 	m_Socket.Bind();
 	m_Socket.Connect(serverIP, serverPort, AF_INET);
 
+	m_Socket.SetNoDelay(true);
+
 	// Tell the server to start
 	m_Stream << L"start\0";
 	
