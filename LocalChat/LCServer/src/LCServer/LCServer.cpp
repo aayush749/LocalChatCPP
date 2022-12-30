@@ -13,20 +13,18 @@ void LCServer::ListenForClients()
 		ntwk::Socket clientSocket = m_ServerSock.Accept();
 		clientSocket.SetNoDelay(true);
 		Logger::logfmt<Log::INFO>("Connected to client: %s", clientSocket.ToString().c_str());
-		s_ClientCtr++;
-		uint64_t clientHash = s_BaseClientHash + s_ClientCtr;
-
-		m_ClientCreationFuturesVec.emplace_back(std::async(std::launch::async, &LCServer::CreateThenAddNewClient, this, clientHash, std::move(clientSocket)));
+	
+		m_ClientCreationFuturesVec.emplace_back(std::async(std::launch::async, &LCServer::CreateThenAddNewClient, this, std::move(clientSocket)));
 	}
 }
 
-void LCServer::CreateThenAddNewClient(uint64_t clientHash, ntwk::Socket&& clientSocket)
+void LCServer::CreateThenAddNewClient(ntwk::Socket&& clientSocket)
 {
-	ClientAppSPtr appSPtr = std::make_shared<ClientApp>(clientHash, std::move(clientSocket));
-
+	ClientAppSPtr appSPtr = std::make_shared<ClientApp>(std::move(clientSocket));
 
 	if (appSPtr->IsValidClient())
 	{
+		uint64_t clientHash = appSPtr->GetHash();
 		// Proceed to add the valid client
 		try
 		{
@@ -42,16 +40,22 @@ void LCServer::CreateThenAddNewClient(uint64_t clientHash, ntwk::Socket&& client
 
 ntwk::Socket& LCServer::GetClientSockFromClientHash(uint64_t clientHash)
 {
+	std::lock_guard<std::mutex> guard(m_ServerDBMutex);
 	return m_ServerDB.at(clientHash)->GetSocket();
 }
 
 void LCServer::MessageDispatcher()
 {
+	std::vector<std::future<void>> sendMsgTaskFutures;
+
 	while (!m_ServerShouldStop)
 	{
+		std::lock_guard<std::mutex> guard(m_ServerDBMutex);
 		for (const auto& [clientHash, app] : m_ServerDB)
 		{
 			auto& pendingMsgs = app->GetPendingMessages();
+			if (!app->IsValidClient() || pendingMsgs.size() == 0)
+				continue;
 			for (auto it = pendingMsgs.begin();
 				it != pendingMsgs.end(); it++)
 			{
@@ -59,10 +63,18 @@ void LCServer::MessageDispatcher()
 				uint64_t recipient = msg->GetRecipientHash();
 				try
 				{
-					SendMsgToClient(*msg, recipient);
+					ServerDB::const_iterator clientIt = m_ServerDB.find(recipient);
+					if (clientIt != m_ServerDB.end())
+					{
+						sendMsgTaskFutures.emplace_back(
+							std::async(std::launch::async, 
+								&LCServer::SendMsgToClient, 
+								this, std::ref(*msg), clientIt)
+						);
 				
-					// Message sent, now remove the message from the pending message list
-					app->RemoveMessage(it);
+						// Message sent, now remove the message from the pending message list
+						app->RemoveMessage(it);
+					}
 				}
 				catch (const std::runtime_error& e)
 				{
@@ -75,6 +87,8 @@ void LCServer::MessageDispatcher()
 
 void LCServer::AddClient(ClientHashTp clientHash, ClientAppSPtr app)
 {
+	std::lock_guard<std::mutex> guard(m_ServerDBMutex);
+
 	// Check if max number of clients is reached or not
 	if (m_MaxClients.has_value() && m_ServerDB.size() == m_MaxClients)
 	{
@@ -93,6 +107,8 @@ void LCServer::AddClient(ClientHashTp clientHash, ClientAppSPtr app)
 
 void LCServer::RemoveClient(ClientHashTp clientHash)
 {
+	std::lock_guard<std::mutex> guard(m_ServerDBMutex);
+
 	auto clientIt = m_ServerDB.find(clientHash);
 	if (clientIt == m_ServerDB.end())
 		throw std::runtime_error("Client does not exist!");
@@ -100,13 +116,15 @@ void LCServer::RemoveClient(ClientHashTp clientHash)
 	m_ServerDB.erase(clientIt);
 }
 
-void LCServer::SendMsgToClient(Message& msgRef, ClientHashTp clientHash)
+uint64_t LCServer::GetNewClientHash()
 {
-	auto clientIt = m_ServerDB.find(clientHash);
-	
-	if (clientIt == m_ServerDB.end())
-		throw std::runtime_error("Can't send message to client, Socket not found.");
-	
+	std::lock_guard<std::mutex> guard(s_clientCountMutex);
+	s_ClientCtr++;
+	return s_BaseClientHash + s_ClientCtr;
+}
+
+void LCServer::SendMsgToClient(Message& msgRef, ServerDB::const_iterator clientIt)
+{
 	std::wstring serializedMsg;
 	msgRef.Serialize(serializedMsg);
 
@@ -118,6 +136,7 @@ void LCServer::SendMsgToClient(Message& msgRef, ClientHashTp clientHash)
 		throw std::runtime_error("Can't send message, invalid socket");
 	else
 	{
+		std::lock_guard<std::mutex> guard(app.GetStrmMutex());
 		app.GetStream() << serializedMsg;
 	}
 }

@@ -10,6 +10,7 @@
 
 #include <optional>
 #include <thread>
+#include <mutex>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -40,23 +41,27 @@ public:
 
 	ntwk::Socket& GetClientSockFromClientHash(uint64_t clientHash);
 
-	const bool ClientExists(uint64_t clientHash) { return m_ServerDB.find(clientHash) != m_ServerDB.end(); }
+	const bool ClientExists(uint64_t clientHash) { std::lock_guard<std::mutex> guard(m_ServerDBMutex);  return m_ServerDB.find(clientHash) != m_ServerDB.end(); }
 
 	// Process incoming messages and act according to it
 	void MessageDispatcher();
 	void RemoveClient(ClientHashTp clientHash);
 
+	static uint64_t GetNewClientHash();
+
 	virtual ~LCServer();
 private:
-	void SendMsgToClient(Message& msgRef, ClientHashTp clientHash);
+	void SendMsgToClient(Message& msgRef, ServerDB::const_iterator clientIt);
 	void AddClient(ClientHashTp clientHash, ClientAppSPtr app);
-	void CreateThenAddNewClient(uint64_t clientHash, ntwk::Socket&& clientSocket);
+	void CreateThenAddNewClient(ntwk::Socket&& clientSocket);
 private:
 	ntwk::ServerSocket m_ServerSock;
+	std::mutex m_ServerDBMutex;
 	ServerDB m_ServerDB;
 	std::optional<unsigned int> m_MaxClients;
 	bool m_ServerShouldStop;
-
+	
+	inline static std::mutex s_clientCountMutex;
 	inline static ClientHashTp s_ClientCtr = 0;
 	inline static ClientHashTp s_BaseClientHash = 1000;
 

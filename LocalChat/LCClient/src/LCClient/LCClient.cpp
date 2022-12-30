@@ -10,7 +10,7 @@
 #include <fstream>
 
 LCClient::LCClient(const std::string& serverIP, uint16_t serverPort, const char* userName)
-	:m_Socket("localhost", 0, AF_INET, SOCK_STREAM), m_Stream(m_Socket), m_UsrName(userName)
+	:m_Socket("localhost", 0, AF_INET, SOCK_STREAM), m_Stream(m_Socket), m_UsrName(userName), m_Hash(0)
 {
 	m_Socket.Bind();
 	m_Socket.Connect(serverIP, serverPort, AF_INET);
@@ -21,8 +21,6 @@ LCClient::LCClient(const std::string& serverIP, uint16_t serverPort, const char*
 	m_Stream << L"start\0";
 	
 	// Get the client hash
-	m_Hash = 0;
-	
 	std::wstring buff;
 	getline(m_Stream, buff, L'\0');
 	
@@ -30,7 +28,7 @@ LCClient::LCClient(const std::string& serverIP, uint16_t serverPort, const char*
 }
 
 LCClient::LCClient(const std::filesystem::path& configFilePath)
-	:m_Socket("localhost", 0, AF_INET, SOCK_STREAM), m_Stream(m_Socket)
+	:m_Socket("localhost", 0, AF_INET, SOCK_STREAM), m_Stream(m_Socket), m_Hash(0)
 {
 	std::ifstream configFStrm(configFilePath.c_str());
 	
@@ -46,7 +44,12 @@ LCClient::LCClient(const std::filesystem::path& configFilePath)
 		const uint16_t serverPort = std::stoi(server.at("port"));
 
 		m_Socket.Bind();
-		m_Socket.Connect(serverIP, serverPort, AF_INET);
+		int res = m_Socket.Connect(serverIP, serverPort, AF_INET);
+
+		if (res == SOCKET_ERROR)
+			std::exit(1);
+
+		Logger::logfmt<Log::INFO>("Successfully connected to server at : %s:%d", serverIP.data(), serverPort);
 
 		m_Socket.SetNoDelay(true);
 
@@ -120,15 +123,18 @@ LCClient::LCClient(const std::filesystem::path& configFilePath)
 				bufferToWrite << "\r\n"
 							  << "hash = " << m_Hash << "\r\n";
 
-				std::string name;
-				std::cout << "Enter your user name: ";
-				getline(std::cin, name);
+				if (parsedIni.sections["UserProfile"].find("name") == parsedIni.sections["UserProfile"].end())
+				{
+					std::string name;
+					std::cout << "Enter your user name: ";
+					getline(std::cin, name);
+					bufferToWrite << "name = " << name << "\r\n";
+				}
 
-				bufferToWrite << "name = " << name << "\r\n";
 			}
 			else
 			{
-				// The Section [UserProfile] also doesn't exist
+				// The Section [UserProfile] doesn't exist
 				std::string temp = "";
 				bufferToWrite << "\r\n"
 					          << "[UserProfile]\r\n"

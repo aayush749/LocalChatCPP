@@ -21,8 +21,8 @@ static bool IsANum(const std::wstring& str)
 }
 
 
-ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
-	:m_Hash(clientHash), m_Socket(std::move(socket))
+ClientApp::ClientApp(ntwk::Socket&& socket)
+	:m_Hash(0), m_Socket(std::move(socket))
 	,m_Stream(m_Socket), m_PendingMessages()
 	,m_ClientShouldStop(false), m_IsValidClient(false)
 {
@@ -34,6 +34,7 @@ ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
 
 	if (buf == L"start")
 	{
+		m_Hash = LCServer::GetNewClientHash();
 		// Send the client hash to the client
 		std::wstring serializedHash = Serialize<std::wstring>(m_Hash);
 		serializedHash += L'\0';
@@ -52,6 +53,9 @@ ClientApp::ClientApp(uint64_t clientHash, ntwk::Socket&& socket)
 
 		if (clientExists)
 		{
+			// Initialize m_Hash
+			m_Hash = tempHash;
+
 			// Mark as a valid client
 			m_IsValidClient = true;
 
@@ -87,6 +91,8 @@ ClientApp::~ClientApp()
 	if (m_ListenerThread.joinable())
 		m_ListenerThread.join();
 
+	m_Hash = 0;
+	Logger::logfmt<Log::WARNING>("Disconnected client %s", m_Socket.ToString().c_str());
 	m_Socket.Close();
 }
 

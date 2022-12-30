@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <thread>
+#include <mutex>
 #include <list>
 
 /*
@@ -17,7 +18,7 @@ public:
 	using StreamTp = ntwk::WCharSocketStream;
 	using MessageSPtr = std::shared_ptr<Message>;
 public:
-	ClientApp(uint64_t clientHash, ntwk::Socket&& socket);
+	ClientApp(ntwk::Socket&& socket);
 	ClientApp(ClientApp&& other) noexcept; // move constructor
 	ClientApp(const ClientApp& other) = delete; // deleted copy constructor (since stream can't be copied)
 	virtual ~ClientApp();
@@ -25,7 +26,10 @@ public:
 	StreamTp& GetStream() { return m_Stream; }
 	std::list<MessageSPtr>& GetPendingMessages() { return m_PendingMessages; }
 
+	std::mutex& GetPendingMsgListMutex() { return m_PendingMsgMutex; }
+	std::mutex& GetStrmMutex() { return m_StrmMutex; }
 	bool IsValidClient() const { return m_IsValidClient; }
+	uint64_t GetHash() const { return m_Hash; }
 
 	/*
 	Listens for incoming messages
@@ -38,6 +42,7 @@ public:
 private:
 	bool m_IsValidClient;
 	uint64_t m_Hash;
+	std::mutex m_PendingMsgMutex, m_StrmMutex;
 	std::list<MessageSPtr> m_PendingMessages;
 	StreamTp m_Stream;
 	ntwk::Socket m_Socket;

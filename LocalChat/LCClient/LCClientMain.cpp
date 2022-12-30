@@ -24,6 +24,20 @@ int main()
 	try
 	{
 		LCClient client(CONFIG_FILE_PATH);
+
+		std::wstring buf = L"";
+		do
+		{
+			std::cout << "Enter your message: ";
+			getline(std::wcin, buf);
+			if (buf == L"quit")
+				continue;
+			
+			TextMessage tm(1002, buf.c_str());
+			std::wstring serialized;
+			tm.Serialize(serialized);
+			client.GetStream() << serialized;
+		} while (buf != L"quit");
 	}
 	catch (const std::exception& e)
 	{
