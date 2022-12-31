@@ -39,6 +39,9 @@ namespace ntwk {
 
 		NTWK_EXPORT ~Socket();
 
+		NTWK_EXPORT Socket& operator=(const Socket& other) = delete;
+		NTWK_EXPORT Socket& operator=(Socket&& other) noexcept;
+
 		NTWK_EXPORT bool operator==(const Socket& other) const { return m_NativeSocket == other.m_NativeSocket; }
 		NTWK_EXPORT bool operator==(const SOCKET& other) const { return m_NativeSocket == other; }
 

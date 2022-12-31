@@ -6,6 +6,7 @@
 #include <Message/Message.h>
 #include <Networking/WCharSocketStream.h>
 
+#include <Events/Event.h>
 #include <LCServer/ClientApp.h>
 
 #include <optional>
@@ -44,8 +45,9 @@ public:
 	const bool ClientExists(uint64_t clientHash) { std::lock_guard<std::mutex> guard(m_ServerDBMutex);  return m_ServerDB.find(clientHash) != m_ServerDB.end(); }
 
 	// Process incoming messages and act according to it
-	void MessageDispatcher();
+	bool MessageDispatcher(uint64_t clientHash);
 	void RemoveClient(ClientHashTp clientHash);
+	bool MsgSentInfoHandler(MsgSPtr message);
 
 	static uint64_t GetNewClientHash();
 
@@ -69,5 +71,4 @@ private:
 	std::vector<std::future<void>> m_ClientCreationFuturesVec;
 private:
 	std::thread m_ListenerThread;
-	std::thread m_MessageDispatcherThread;
 };

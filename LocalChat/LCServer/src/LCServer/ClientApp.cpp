@@ -5,6 +5,7 @@
 #include <Message/TextMessage.h>
 #include <utils/SerializationUtils.h>
 #include <utils/Conversion.h>
+#include <Events/Event.h>
 
 extern LCServer GLOBAL_SERVER;
 
@@ -42,6 +43,9 @@ ClientApp::ClientApp(ntwk::Socket&& socket)
 		
 		m_IsValidClient = true;
 
+		// Raise CLIENT_ACTIVE event
+		Event<EventName::CLIENT_ACTIVE>::Raise(m_Hash);
+
 		// Start listening
 		m_ListenerThread = std::thread(&ClientApp::Listen, this);
 	}
@@ -62,6 +66,10 @@ ClientApp::ClientApp(ntwk::Socket&& socket)
 			// Send an OK confirmation to the client
 			m_Stream << L"OK\0";
 
+			// Raise CLIENT_ACTIVE event
+			Event<EventName::CLIENT_ACTIVE>::Raise(m_Hash);
+
+
 			// Start Listening to client
 			m_ListenerThread = std::thread(&ClientApp::Listen, this);
 		}
@@ -72,6 +80,16 @@ ClientApp::ClientApp(ntwk::Socket&& socket)
 			m_Stream << L"ERR\0";
 		}
 	}
+}
+
+ClientApp::ClientApp(uint64_t hash, ntwk::Socket&& socket, const std::list<MessageSPtr>& pendingMessages)
+	:m_Hash(hash), m_Socket(std::move(socket)), m_Stream(m_Socket), m_PendingMessages(pendingMessages), m_IsValidClient(true)
+{
+	// Raise a client active event
+	Event<EventName::CLIENT_ACTIVE>::Raise(m_Hash);
+
+	// Start the listening thread for the client again
+	m_ListenerThread = std::thread(&ClientApp::Listen, this);
 }
 
 ClientApp::ClientApp(ClientApp&& other) noexcept
@@ -104,14 +122,27 @@ void ClientApp::Listen()
 	std::wstring buffer;
 	while (!m_ClientShouldStop)
 	{
-		getline(clientIStrm, buffer, L'\0');
-		clientIStrm.clear();	// clear the input buffer as soon as you read the data
+		{
+
+			buffer.clear();
+			std::lock_guard<std::mutex> guard(m_StrmMutex);
+
+			getline(clientIStrm, buffer, L'\0');
+			clientIStrm.clear();	// clear the input buffer as soon as you read the data
+		}
 
 		if (buffer.empty())
 			continue;
 
 		if (buffer == L"close")
+		{
+			// Stop listening, but don't destroy 'this' because we want to keep the pending messages list sent from this client app
 			m_ClientShouldStop = true;
+			m_IsValidClient = false;
+
+			// Also close the socket
+			m_Socket.Close();
+		}
 
 		if (buffer._Starts_with(L"TxtMsg|"))
 		{
@@ -149,7 +180,13 @@ void ClientApp::ProcessMessage(const Message& msg)
 			text.Serialize(content);
 		
 			// Send the message
-			recipientSocket.SendWideBytes(content);
+			{
+				std::lock_guard<std::mutex> guard(m_StrmMutex);
+				m_Stream << content;
+			}
+
+			// Raise a MSG_SENT event
+			Event<EventName::MSG_SENT>::Raise(std::make_shared<TextMessage>(text.GetSenderHash(), text.GetRecipientHash(), text.GetContent()));
 		}
 		catch (const std::out_of_range& e)
 		{

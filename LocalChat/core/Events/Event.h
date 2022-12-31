@@ -10,11 +10,8 @@ private:
 	Event();
 public:
 	template <typename... Args>
-	static void Raise(Args... args);
+	static void Raise(Args... args)
+	{
+		EventManager::Dispatch<event>(std::forward<Args>(args)...);
+	}
 };
-
-template <EventName event, typename... Args>
-void Event<event>::Raise<Args>(Args... args)
-{
-	EventManager::Dispatch<event>(std::forward<Args>(args)...);
-}

@@ -19,6 +19,7 @@ public:
 	using MessageSPtr = std::shared_ptr<Message>;
 public:
 	ClientApp(ntwk::Socket&& socket);
+	ClientApp(uint64_t hash, ntwk::Socket&& socket, const std::list<MessageSPtr>& pendingMessages);
 	ClientApp(ClientApp&& other) noexcept; // move constructor
 	ClientApp(const ClientApp& other) = delete; // deleted copy constructor (since stream can't be copied)
 	virtual ~ClientApp();

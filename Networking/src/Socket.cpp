@@ -68,6 +68,35 @@ namespace ntwk {
 		other.m_SocketAddress = nullptr;
 		other.m_SocketAddressLength = 0;
 	}
+
+	Socket& Socket::operator=(Socket&& other) noexcept
+	{
+		m_AddressFamily = other.m_AddressFamily;
+		m_Type = other.m_Type;
+		m_IPAddress = std::move(other.m_IPAddress);
+		m_Port = other.m_Port;
+		m_PortStr = std::move(other.m_PortStr);
+		m_IsOpen = other.m_IsOpen;
+		m_IsListening = other.m_IsListening;
+		m_NativeSocket = other.m_NativeSocket;
+		m_SocketAddress = other.m_SocketAddress;
+		m_SocketAddressLength = other.m_SocketAddressLength;
+
+
+		// Invalidate the temporary 'other' socket
+		other.m_AddressFamily = -1;
+		other.m_Type = -1;
+		other.m_IPAddress.clear();
+		other.m_Port = 0;
+		other.m_PortStr.clear();
+		other.m_IsOpen = false;
+		other.m_IsListening = false;
+		other.m_NativeSocket = INVALID_SOCKET;
+		other.m_SocketAddress = nullptr;
+		other.m_SocketAddressLength = 0;
+
+		return *this;
+	}
 	
 	int Socket::SendNBytes(const char* str, int n)
 	{

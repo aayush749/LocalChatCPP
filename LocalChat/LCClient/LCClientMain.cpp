@@ -33,7 +33,7 @@ int main()
 			if (buf == L"quit")
 				continue;
 			
-			TextMessage tm(1002, buf.c_str());
+			TextMessage tm(client.GetHash(), 1002, buf.c_str());
 			std::wstring serialized;
 			tm.Serialize(serialized);
 			client.GetStream() << serialized;
