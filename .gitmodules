@@ -4,3 +4,6 @@
 [submodule "LocalChat/LCClient/vendor/inipp"]
 	path = LocalChat/LCClient/vendor/inipp
 	url = git@github.com:mcmtroffaes/inipp.git
+[submodule "LocalChat/vendor/crossguid"]
+	path = LocalChat/vendor/crossguid
+	url = git@github.com:graeme-hill/crossguid.git
