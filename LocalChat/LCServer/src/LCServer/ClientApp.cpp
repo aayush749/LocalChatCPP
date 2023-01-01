@@ -142,6 +142,8 @@ void ClientApp::Listen()
 
 			// Also close the socket
 			m_Socket.Close();
+
+			Logger::logfmt<Log::WARNING>("Client#%ld logged off", m_Hash);
 		}
 
 		if (buffer._Starts_with(L"TxtMsg|"))
