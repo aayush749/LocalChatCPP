@@ -90,7 +90,7 @@ void LCServer::AddClient(ClientHashTp clientHash, ClientAppSPtr app)
 	{
 		// Check if the existing client app has gone inactive
 		const auto& existingApp = clientIt->second;
-		if (existingApp->IsValidClient())
+		if (existingApp->IsValidClient() && !existingApp->IsActiveClient())
 		{
 			// This is a valid client (already registered with the server, ie. its entry exists; that's why we're executing this code)
 			// So create a new app, and replace the existing one, but copy over the pending messages from the old app
@@ -102,6 +102,9 @@ void LCServer::AddClient(ClientHashTp clientHash, ClientAppSPtr app)
 
 			// Update the app stored in the server db
 			clientIt->second = newApp;
+
+			Logger::logfmt<Log::WARNING>("Client#%ld logged back on", clientHash);
+			return;
 		}
 		else
 			Logger::logfmt<Log::ERR>("Attempt made to add an existing active client, Client#%ld", clientHash);

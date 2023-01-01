@@ -25,7 +25,7 @@ static bool IsANum(const std::wstring& str)
 ClientApp::ClientApp(ntwk::Socket&& socket)
 	:m_Hash(0), m_Socket(std::move(socket))
 	,m_Stream(m_Socket), m_PendingMessages()
-	,m_ClientShouldStop(false), m_IsValidClient(false)
+	,m_ClientShouldStop(false), m_IsValidClient(false), m_IsActive(false)
 {
 	
 	// Wait for the client to signal that its ready
@@ -45,6 +45,8 @@ ClientApp::ClientApp(ntwk::Socket&& socket)
 
 		// Raise CLIENT_ACTIVE event
 		Event<EventName::CLIENT_ACTIVE>::Raise(m_Hash);
+
+		m_IsActive = true;
 
 		// Start listening
 		m_ListenerThread = std::thread(&ClientApp::Listen, this);
@@ -69,6 +71,7 @@ ClientApp::ClientApp(ntwk::Socket&& socket)
 			// Raise CLIENT_ACTIVE event
 			Event<EventName::CLIENT_ACTIVE>::Raise(m_Hash);
 
+			m_IsActive = true;
 
 			// Start Listening to client
 			m_ListenerThread = std::thread(&ClientApp::Listen, this);
@@ -83,29 +86,35 @@ ClientApp::ClientApp(ntwk::Socket&& socket)
 }
 
 ClientApp::ClientApp(uint64_t hash, ntwk::Socket&& socket, const std::list<MessageSPtr>& pendingMessages)
-	:m_Hash(hash), m_Socket(std::move(socket)), m_Stream(m_Socket), m_PendingMessages(pendingMessages), m_IsValidClient(true)
+	:m_Hash(hash), m_Socket(std::move(socket)), m_Stream(m_Socket), m_PendingMessages(pendingMessages), m_IsValidClient(true), m_ClientShouldStop(false)
 {
 	// Raise a client active event
 	Event<EventName::CLIENT_ACTIVE>::Raise(m_Hash);
+
+	m_IsActive = true;
 
 	// Start the listening thread for the client again
 	m_ListenerThread = std::thread(&ClientApp::Listen, this);
 }
 
 ClientApp::ClientApp(ClientApp&& other) noexcept
-	:m_IsValidClient(other.m_IsValidClient), m_Hash(other.m_Hash), m_Socket(std::move(other.m_Socket)),
-	m_Stream(StreamTp(m_Socket)), m_PendingMessages(std::move(other.m_PendingMessages)), m_ClientShouldStop(false),
-	m_ListenerThread(std::move(other.m_ListenerThread))
+	:m_IsValidClient(other.m_IsValidClient), m_Hash(other.m_Hash), m_Socket(std::move(other.m_Socket))
+	,m_Stream(StreamTp(m_Socket)), m_PendingMessages(std::move(other.m_PendingMessages)), m_ClientShouldStop(false)
+	,m_IsActive(other.m_IsActive)
+	,m_ListenerThread(std::move(other.m_ListenerThread))
 {
 	other.m_IsValidClient = false;
 	other.m_Hash = 0;
 	other.m_ClientShouldStop = true;
+	other.m_IsValidClient = false;
+	other.m_IsActive = false;
 }
 
 ClientApp::~ClientApp()
 {
 	m_ClientShouldStop = true;
 	m_IsValidClient = false;
+	m_IsActive = false;
 	if (m_ListenerThread.joinable())
 		m_ListenerThread.join();
 
@@ -138,7 +147,8 @@ void ClientApp::Listen()
 		{
 			// Stop listening, but don't destroy 'this' because we want to keep the pending messages list sent from this client app
 			m_ClientShouldStop = true;
-			m_IsValidClient = false;
+			
+			m_IsActive = false;
 
 			// Also close the socket
 			m_Socket.Close();

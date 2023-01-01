@@ -30,6 +30,7 @@ public:
 	std::mutex& GetPendingMsgListMutex() { return m_PendingMsgMutex; }
 	std::mutex& GetStrmMutex() { return m_StrmMutex; }
 	bool IsValidClient() const { return m_IsValidClient; }
+	bool IsActiveClient() const { return m_IsActive; }
 	uint64_t GetHash() const { return m_Hash; }
 
 	/*
@@ -41,6 +42,7 @@ public:
 	void RemoveMessage(std::list<MessageSPtr>::iterator iterator);
 	void ProcessMessage(const Message& msg);
 private:
+	bool m_IsActive;
 	bool m_IsValidClient;
 	uint64_t m_Hash;
 	std::mutex m_PendingMsgMutex, m_StrmMutex;
