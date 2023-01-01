@@ -68,8 +68,8 @@ bool LCServer::MessageDispatcher(uint64_t clientHash)
 				app->GetStream() << serialized;
 			}
 		}
-		return true;
 	}
+	return true;
 }
 
 void LCServer::AddClient(ClientHashTp clientHash, ClientAppSPtr app)
@@ -136,7 +136,7 @@ bool LCServer::MsgSentInfoHandler(MsgSPtr message)
 	
 		// Send a "message sent" message back to the sender
 		std::wstring buffer = L"SENT|";
-		buffer += message->GetGUID();
+		buffer += message->GetGUIDWStrView();
 		buffer += L'\0';
 		
 		std::lock_guard<std::mutex> guard(app->GetStrmMutex());

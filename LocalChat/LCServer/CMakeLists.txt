@@ -18,6 +18,8 @@ list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/core)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/LCServer/include)
 
+list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/vendor/crossguid/include)
+
 #sources
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/Message.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/TextMessage.cpp)
@@ -32,6 +34,7 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCServer/LCServLauncher.cpp)
 
 #libraries
 list(APPEND LIBS Networking)
+list(APPEND LIBS crossguid)
 
 add_executable(LCServer ${SOURCES})
 

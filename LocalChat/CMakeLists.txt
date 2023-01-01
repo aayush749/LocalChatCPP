@@ -18,3 +18,5 @@ if(BUILD_SERVER_AND_CLIENT)
 	add_subdirectory("LCServer")
 	add_subdirectory("LCClient")
 endif()
+
+add_subdirectory("vendor/crossguid")

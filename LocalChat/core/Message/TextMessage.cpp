@@ -10,15 +10,28 @@ TextMessage::TextMessage(uint64_t senderHash, uint64_t recipientHash, const std:
 	,m_Body(content)
 {}
 
+TextMessage::TextMessage(xg::Guid guid, uint64_t senderHash, uint64_t recipientHash, const std::wstring_view content)
+	:Message(guid, senderHash, recipientHash)
+	,m_Body(content)
+{
+}
+
+TextMessage::TextMessage(const std::wstring_view guidWStrView, uint64_t senderHash, uint64_t recipientHash, const std::wstring_view content)
+	:Message(guidWStrView, senderHash, recipientHash)
+	,m_Body(content)
+{
+}
+
 TextMessage::TextMessage(const TextMessage& other)
-	:Message(other.m_SenderHash, other.m_RecipientHash)
+	:Message(other.m_GUID, other.m_SenderHash, other.m_RecipientHash)
 	,m_Body(other.m_Body)
 {}
 
 TextMessage::TextMessage(TextMessage&& other) noexcept
-	:Message(other.m_SenderHash, other.m_RecipientHash)
+	:Message(other.m_GUID, other.m_SenderHash, other.m_RecipientHash)
 	,m_Body(std::move(other.m_Body))
 {
+	other.m_GUID = xg::Guid();	// empty guid
 	other.m_SenderHash = 0;
 	other.m_RecipientHash = 0;
 	other.m_Body.clear();
@@ -27,7 +40,10 @@ TextMessage::TextMessage(TextMessage&& other) noexcept
 void TextMessage::Serialize(_Out_ std::wstring& buffer) const
 {
 	// Add the delimiter (NULL char) as well
+	std::string guidStr = m_GUID.str();
 	buffer = L"TxtMsg|";
+	buffer += GetGUIDWStrView();
+	buffer += L'|';
 	buffer += std::to_wstring(m_SenderHash);
 	buffer += L'|';
 	buffer += std::to_wstring(m_RecipientHash);
@@ -43,6 +59,10 @@ TextMessage TextMessage::DeSerialize(_In_ const std::wstring_view& buffer)
 	temp = temp.substr(ind);
 
 	ind = temp.find_first_of(L'|');
+	std::wstring_view guidView = temp.substr(0, ind);
+	temp = temp.substr(ind + 1);
+	
+	ind = temp.find_first_of(L'|');
 	std::wstring_view senderView = temp.substr(0, ind);
 	temp = temp.substr(ind + 1);
 	
@@ -56,18 +76,31 @@ TextMessage TextMessage::DeSerialize(_In_ const std::wstring_view& buffer)
 	uint64_t recipient = cnvrt::To<uint64_t>(recipientView);
 	std::wstring_view content = msgView;
 
-	return TextMessage(sender, recipient, content);
+	return TextMessage(guidView, sender, recipient, content);
 }
 
 TextMessage& TextMessage::operator=(const TextMessage& other)
 {
+	m_GUID = other.m_GUID;
+	m_GuidWStr = other.m_GuidWStr;
+	m_SenderHash = other.m_SenderHash;
+	m_RecipientHash = other.m_RecipientHash;
 	m_Body = other.m_Body;
 	return *this;
 }
 
 TextMessage& TextMessage::operator=(TextMessage&& other) noexcept
 {
+	m_GUID = std::move(m_GUID);
+	m_GuidWStr = std::move(other.m_GuidWStr);
+	m_SenderHash = other.m_SenderHash;
+	m_RecipientHash = other.m_RecipientHash;
 	m_Body = std::move(other.m_Body);
+
+	other.m_GUID = xg::Guid();	// empty guid
+	other.m_SenderHash = 0;
+	other.m_RecipientHash = 0;
+	other.m_GuidWStr.clear();
 	other.m_Body.clear();
 	return *this;
 }

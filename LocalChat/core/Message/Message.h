@@ -2,6 +2,8 @@
 
 #include <Serializable/Serializable.h>
 
+#include <crossguid/guid.hpp>
+
 #include <iostream>
 #include <string_view>
 
@@ -10,16 +12,36 @@ class Message : public Serializable
 public:
 	uint64_t GetSenderHash() const { return m_SenderHash; }
 	uint64_t GetRecipientHash() const { return m_RecipientHash; }
-	uint64_t GetGUID() const { return m_GUID; }
+	const xg::Guid& GetGUID() const { return m_GUID; }
+	const std::wstring_view GetGUIDWStrView() const { return m_GuidWStr; }
 protected:
 	Message(uint64_t senderHash, uint64_t recipientHash)
-		:m_SenderHash(senderHash), m_RecipientHash(recipientHash)
+		:m_SenderHash(senderHash), m_RecipientHash(recipientHash), m_GUID(xg::newGuid())
+	{
+		auto guidStr = m_GUID.str();
+		m_GuidWStr = std::wstring(guidStr.begin(), guidStr.end());
+	}
+	
+	Message(xg::Guid guid, uint64_t senderHash, uint64_t recipientHash)
+		:m_GUID(guid), m_SenderHash(senderHash), m_RecipientHash(recipientHash)
+	{
+		auto guidStr = m_GUID.str();
+		m_GuidWStr = std::wstring(guidStr.begin(), guidStr.end());
+	}
+
+	Message(const std::wstring_view guidWStrView, uint64_t senderHash, uint64_t recipientHash)
+		:m_GuidWStr(guidWStrView)
+		,m_GUID(std::string(guidWStrView.begin(), guidWStrView.end()))
+		,m_SenderHash(senderHash)
+		,m_RecipientHash(recipientHash)
 	{}
 
 protected:
-	uint64_t m_GUID;
+	xg::Guid m_GUID;
 	uint64_t m_SenderHash;
 	uint64_t m_RecipientHash;
+
+	std::wstring m_GuidWStr;
 };
 
 std::wostream& operator<<(std::wostream&, const Message&);
