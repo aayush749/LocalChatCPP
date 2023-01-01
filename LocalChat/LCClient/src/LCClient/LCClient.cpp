@@ -105,47 +105,18 @@ LCClient::LCClient(const std::filesystem::path& configFilePath)
 			
 			std::ostringstream bufferToWrite;
 
-			if (parsedIni.sections.find("UserProfile") != parsedIni.sections.end())
-			{
-				// Section Exists, but not the values
-				std::string temp = "";
-				size_t offset = 0;
-				while (getline(configFStrm, temp))
-				{
-					if (temp != "[UserProfile]")
-						offset += temp.length() + 2; // Assuming CRLF line endings
-					else
-						break;
-
-					temp.clear();
-				}
-				outConfigFStrm.seekp(std::ios::beg, offset);
-				bufferToWrite << "\r\n"
-							  << "hash = " << m_Hash << "\r\n";
-
-				if (parsedIni.sections["UserProfile"].find("name") == parsedIni.sections["UserProfile"].end())
-				{
-					std::string name;
-					std::cout << "Enter your user name: ";
-					getline(std::cin, name);
-					bufferToWrite << "name = " << name << "\r\n";
-				}
-
-			}
-			else
-			{
-				// The Section [UserProfile] doesn't exist
-				std::string temp = "";
-				bufferToWrite << "\r\n"
-					          << "[UserProfile]\r\n"
-							  << "hash = " << m_Hash << "\r\n";
 			
-				std::string name;
-				std::cout << "Enter your user name: ";
-				getline(std::cin, name);
+			std::string temp = "";
+			bufferToWrite << "\n"
+					        << "[UserProfile]\n"
+							<< "hash = " << m_Hash << "\n";
+			
+			std::string name;
+			std::cout << "Enter your user name: ";
+			getline(std::cin, name);
 
-				bufferToWrite << "name = " << name << "\r\n";
-			}
+			bufferToWrite << "name = " << name << "\n";
+			
 			outConfigFStrm << bufferToWrite.str();
 		}
 	}
