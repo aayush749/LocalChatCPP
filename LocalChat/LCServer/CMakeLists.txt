@@ -23,6 +23,7 @@ list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/LocalChat/vendor/crossguid/include)
 #sources
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/Message.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/TextMessage.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/ControlMessage.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/src/SerializationUtils.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/src/Conversion.cpp)
 

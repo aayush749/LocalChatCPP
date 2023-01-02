@@ -1,4 +1,5 @@
 #include <LCServer/LCServer.h>
+#include <Message/ControlMessage.h>
 #include <Logger/Logger.h>
 
 #include <functional>
@@ -135,17 +136,27 @@ bool LCServer::MsgSentInfoHandler(MsgSPtr message)
 		auto& app = m_ServerDB.at(senderHash);
 	
 		// Send a "message sent" message back to the sender
-		std::wstring buffer = L"SENT|";
-		buffer += message->GetGUIDWStrView();
-		buffer += L'\0';
+		ControlMessage sent(message->GetGUID(), ControlMessageType::MSG_SENT);
+		std::wstring buffer;
+		sent.Serialize(buffer);
 		
-		std::lock_guard<std::mutex> guard(app->GetStrmMutex());
-		app->GetStream() << buffer;
+		// Only send if the socket is not invalid
+		if (app->GetSocket() == INVALID_SOCKET)
+		{
+			// add to pending queue
+			m_PendingControlMessagesQueue.push({ app->GetHash(), std::move(sent) });
+			Logger::logfmt<Log::ERR, 2048>("Could not send \"Msg SENT\" receipt to %d for msg guid: %s. Adding to pending control message queue", senderHash, message->GetGUID().str());
+		}
+		else
+		{
+			std::lock_guard<std::mutex> guard(app->GetStrmMutex());
+			app->GetStream() << buffer;
+		}
 		return true;
 	}
 	catch (const std::out_of_range& e)
 	{
-		Logger::logfmt<Log::ERR, 2048>("Could not send \"Msg SENT\" receipt to %d. Adding to pending message list: Currently not implemented Control Messages", senderHash);		
+		Logger::logfmt<Log::ERR, 2048>("Could not send \"Msg SENT\" receipt to %d. Unidentified Recepient#%ld", senderHash, senderHash);		
 		return true;
 	}
 	catch (const std::exception& e)

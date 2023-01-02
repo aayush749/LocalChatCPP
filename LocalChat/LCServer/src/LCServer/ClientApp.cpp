@@ -159,6 +159,7 @@ void ClientApp::Listen()
 		if (buffer._Starts_with(L"TxtMsg|"))
 		{
 			TextMessage tm = TextMessage::DeSerialize(buffer.data());
+			Event<EventName::MSG_SENT>::Raise(std::make_shared<TextMessage>(tm));
 			ProcessMessage(tm);
 		}
 		// Similarly would check for other message types
@@ -191,14 +192,20 @@ void ClientApp::ProcessMessage(const Message& msg)
 			std::wstring content;
 			text.Serialize(content);
 		
-			// Send the message
+			// Send the message if the client socket is valid
+			if (m_Socket == INVALID_SOCKET)
+			{
+				Logger::logfmt<Log::ERR>("Could not send message to Recipient#ld, because Sender's socket (Client#%ld) is an \"INVALID_SOCKET\"", text.GetRecipientHash(), text.GetSenderHash());
+				return;
+			}
+			else
 			{
 				std::lock_guard<std::mutex> guard(m_StrmMutex);
 				m_Stream << content;
+				// Raise a MSG_DELIVERED event
+				Event<EventName::MSG_DELIVERED>::Raise(std::make_shared<TextMessage>(text.GetSenderHash(), text.GetRecipientHash(), text.GetContent()));
 			}
 
-			// Raise a MSG_SENT event
-			Event<EventName::MSG_SENT>::Raise(std::make_shared<TextMessage>(text.GetSenderHash(), text.GetRecipientHash(), text.GetContent()));
 		}
 		catch (const std::out_of_range& e)
 		{

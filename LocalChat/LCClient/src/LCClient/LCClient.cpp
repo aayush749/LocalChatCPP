@@ -11,6 +11,8 @@
 
 LCClient::LCClient(const std::string& serverIP, uint16_t serverPort, const char* userName)
 	:m_Socket("localhost", 0, AF_INET, SOCK_STREAM), m_Stream(m_Socket), m_UsrName(userName), m_Hash(0)
+	,m_ShouldStopListening(true) // don't listen immediately for incoming messages
+	,m_IncomingMsgListenerThread()
 {
 	m_Socket.Bind();
 	m_Socket.Connect(serverIP, serverPort, AF_INET);
@@ -25,10 +27,14 @@ LCClient::LCClient(const std::string& serverIP, uint16_t serverPort, const char*
 	getline(m_Stream, buff, L'\0');
 	
 	m_Hash = cnvrt::To<uint64_t>(buff);
+
+	StartListenerThread();
 }
 
 LCClient::LCClient(const std::filesystem::path& configFilePath)
 	:m_Socket("localhost", 0, AF_INET, SOCK_STREAM), m_Stream(m_Socket), m_Hash(0)
+	,m_ShouldStopListening(true) // don't listen immediately for incoming messages
+	,m_IncomingMsgListenerThread()
 {
 	std::ifstream configFStrm(configFilePath.c_str());
 	
@@ -74,6 +80,9 @@ LCClient::LCClient(const std::filesystem::path& configFilePath)
 			{
 				// Show a welcome message to the user
 				Logger::logfmt<Log::INFO>("Welcome %s", m_UsrName.c_str());
+				
+
+				StartListenerThread();
 			}
 			else
 			{
@@ -118,6 +127,8 @@ LCClient::LCClient(const std::filesystem::path& configFilePath)
 			bufferToWrite << "name = " << name << "\n";
 			
 			outConfigFStrm << bufferToWrite.str();
+
+			StartListenerThread();
 		}
 	}
 }
@@ -125,5 +136,21 @@ LCClient::LCClient(const std::filesystem::path& configFilePath)
 LCClient::~LCClient()
 {
 	m_Stream << L"close\0";
+	m_ShouldStopListening = true;
 	m_Socket.Close();
+
+	if (m_IncomingMsgListenerThread.joinable())
+		m_IncomingMsgListenerThread.join();
+}
+
+void LCClient::ListenIncomingMsgs()
+{
+	while (!m_ShouldStopListening)
+	{
+		std::wstring buffer;
+		if (m_Socket == INVALID_SOCKET)
+			return;
+		getline(m_Stream, buffer, L'\0');
+		Logger::logfmt<Log::INFO>("Received bytes: %s", std::string(buffer.begin(), buffer.end()).c_str());
+	}
 }

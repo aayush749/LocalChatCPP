@@ -10,5 +10,6 @@ ControlMessage ControlMessage::DeSerialize(_In_ const std::wstring_view buffer)
 
 	const std::wstring_view typeView = temp;
 
-	return ControlMessage(xg::Guid(guidView), (ControlMessageType) std::stoi(typeView));
+	return ControlMessage(xg::Guid(std::string(guidView.begin(), guidView.end())),
+							(ControlMessageType) cnvrt::To<uint64_t>(typeView));
 }

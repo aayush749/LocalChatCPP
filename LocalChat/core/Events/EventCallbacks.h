@@ -25,7 +25,7 @@ struct EventFn<EventName::MSG_SENT>
 template <>
 struct EventFn<EventName::MSG_DELIVERED>
 {
-	using type = std::function<bool(MsgSPtr, std::chrono::time_point<std::chrono::system_clock>)>;
+	using type = std::function<bool(MsgSPtr)>;
 };
 
 template <>

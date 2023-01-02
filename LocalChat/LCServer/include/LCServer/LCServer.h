@@ -8,10 +8,12 @@
 
 #include <Events/Event.h>
 #include <LCServer/ClientApp.h>
+#include <Message/ControlMessage.h>
 
 #include <optional>
 #include <thread>
 #include <mutex>
+#include <queue>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -33,6 +35,7 @@ class LCServer
 	using MessageSPtr = std::shared_ptr<Message>;
 	using ClientAppSPtr = std::shared_ptr<ClientApp>;
 	using ServerDB = std::unordered_map<ClientHashTp, ClientAppSPtr>;
+	using PendingControlMsgTp = std::pair<ClientHashTp, ControlMessage>;
 
 public:
 	LCServer(const std::optional<unsigned int> maxClients, const std::string_view ipAddress = "0.0.0.0", const int addressFamily = AF_INET, const uint16_t port = 7777);
@@ -58,11 +61,17 @@ private:
 	void CreateThenAddNewClient(ntwk::Socket&& clientSocket);
 private:
 	ntwk::ServerSocket m_ServerSock;
+	
 	std::mutex m_ServerDBMutex;
 	ServerDB m_ServerDB;
+	
 	std::optional<unsigned int> m_MaxClients;
 	bool m_ServerShouldStop;
-	
+
+	std::mutex m_ServerControlMsgQMtx;
+	std::queue<PendingControlMsgTp> m_PendingControlMessagesQueue;
+
+
 	inline static std::mutex s_clientCountMutex;
 	inline static ClientHashTp s_ClientCtr = 0;
 	inline static ClientHashTp s_BaseClientHash = 1000;

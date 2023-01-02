@@ -18,7 +18,7 @@ public:
 	void Serialize(_Out_ std::wstring& buffer) const override
 	{
 		buffer.clear();
-		std::string_view guidStr = m_Guid.str();
+		std::string guidStr = m_Guid.str();
 
 		buffer += std::wstring(guidStr.begin(), guidStr.end());
 		buffer += L'|';
