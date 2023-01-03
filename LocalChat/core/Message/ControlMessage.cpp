@@ -5,6 +5,10 @@ ControlMessage ControlMessage::DeSerialize(_In_ const std::wstring_view buffer)
 	std::wstring_view temp = buffer;
 
 	int ind = temp.find_first_of(L'|');
+	ind++;
+	temp = temp.substr(ind);
+
+	ind = temp.find_first_of(L'|');
 	const std::wstring_view guidView = temp.substr(0, ind);
 	temp = temp.substr(++ind);
 

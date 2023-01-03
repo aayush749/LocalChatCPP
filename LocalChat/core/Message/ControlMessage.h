@@ -20,6 +20,8 @@ public:
 		buffer.clear();
 		std::string guidStr = m_Guid.str();
 
+		buffer += L"CTRL|";	// header for control messages
+
 		buffer += std::wstring(guidStr.begin(), guidStr.end());
 		buffer += L'|';
 		buffer += std::to_wstring((int) m_Type);
