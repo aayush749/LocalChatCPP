@@ -2,6 +2,7 @@
 
 #include <utils/Conversion.h>
 #include <utils/SerializationUtils.h>
+#include <Message/ControlMessage.h>
 
 #include <Logger/Logger.h>
 
@@ -151,6 +152,19 @@ void LCClient::ListenIncomingMsgs()
 		if (m_Socket == INVALID_SOCKET)
 			return;
 		getline(m_Stream, buffer, L'\0');
+		
+		if (buffer._Starts_with(L"CTRL|"))
+		{
+			// It is a control message
+			ControlMessage cm = ControlMessage::DeSerialize(buffer);
+			const auto&guid = cm.GetGUID();
+			auto type = cm.GetType();
+			if (type == ControlMessageType::MSG_SENT)
+			{
+				Logger::logfmt<Log::INFO>("Message with id: %s is sent", guid.str().c_str());
+			}
+		}
+
 		Logger::logfmt<Log::INFO>("Received bytes: %s", std::string(buffer.begin(), buffer.end()).c_str());
 	}
 }

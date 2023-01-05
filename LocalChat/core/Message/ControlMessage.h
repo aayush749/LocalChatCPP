@@ -15,6 +15,9 @@ public:
 		:m_Guid(guid), m_Type(type)
 	{}
 
+	const xg::Guid& GetGUID() const { return m_Guid; }
+	ControlMessageType GetType() const { return m_Type; }
+
 	void Serialize(_Out_ std::wstring& buffer) const override
 	{
 		buffer.clear();

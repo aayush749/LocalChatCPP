@@ -34,6 +34,7 @@ int main()
 				continue;
 			
 			TextMessage tm(client.GetHash(), 1002, buf.c_str());
+			Logger::logfmt<Log::INFO>("Sending message with id: %s", tm.GetGUID().str().c_str());
 			std::wstring serialized;
 			tm.Serialize(serialized);
 			client.GetStream() << serialized;
