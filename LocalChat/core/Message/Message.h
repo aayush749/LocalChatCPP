@@ -14,6 +14,13 @@ public:
 	uint64_t GetRecipientHash() const { return m_RecipientHash; }
 	const xg::Guid& GetGUID() const { return m_GUID; }
 	const std::wstring_view GetGUIDWStrView() const { return m_GuidWStr; }
+
+	bool IsSent() const { return m_IsSent; }
+	bool IsDelivered() const { return m_IsDelivered; }
+
+	void SetSentStatus(bool status) { m_IsSent = status; }
+	void SetDeliveredStatus(bool status) { m_IsSent = status; }
+
 protected:
 	Message(uint64_t senderHash, uint64_t recipientHash)
 		:m_SenderHash(senderHash), m_RecipientHash(recipientHash), m_GUID(xg::newGuid())
@@ -42,6 +49,8 @@ protected:
 	uint64_t m_RecipientHash;
 
 	std::wstring m_GuidWStr;
+
+	bool m_IsSent, m_IsDelivered;
 };
 
 std::wostream& operator<<(std::wostream&, const Message&);
