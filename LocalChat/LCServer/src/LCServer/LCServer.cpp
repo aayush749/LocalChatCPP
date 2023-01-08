@@ -11,6 +11,7 @@ LCServer::LCServer(const std::optional<unsigned int> maxClients, const std::stri
 	// Add event listeners
 	EventManager::AddListener<EventName::CLIENT_ACTIVE>(std::bind(&LCServer::MessageDispatcher, this, std::placeholders::_1));
 	EventManager::AddListener<EventName::MSG_SENT>(std::bind(&LCServer::MsgSentInfoHandler, this, std::placeholders::_1));
+	EventManager::AddListener<EventName::MSG_DELIVERED>(std::bind(&LCServer::MsgDeliveredInfoHandler, this, std::placeholders::_1));
 }
 
 void LCServer::ListenForClients()
@@ -65,8 +66,7 @@ bool LCServer::MessageDispatcher(uint64_t clientHash)
 			{
 				std::wstring serialized;
 				msg->Serialize(serialized);
-				std::lock_guard<std::mutex> guard(app->GetStrmMutex());
-				app->GetStream() << serialized;
+				*app << serialized;
 			}
 		}
 	}
@@ -149,8 +149,46 @@ bool LCServer::MsgSentInfoHandler(MsgSPtr message)
 		}
 		else
 		{
-			std::lock_guard<std::mutex> guard(app->GetStrmMutex());
-			app->GetStream() << buffer;
+			*app << buffer;
+		}
+		return true;
+	}
+	catch (const std::out_of_range& e)
+	{
+		Logger::logfmt<Log::ERR, 2048>("Could not send \"Msg SENT\" receipt to %d. Unidentified Recepient#%ld", senderHash, senderHash);		
+		return true;
+	}
+	catch (const std::exception& e)
+	{
+		return false;
+	}
+	return false;
+}
+
+bool LCServer::MsgDeliveredInfoHandler(MsgSPtr message)
+{
+	uint64_t senderHash = message->GetSenderHash();
+	
+	try
+	{
+		// Obtain the client app of the sender
+		auto& app = m_ServerDB.at(senderHash);
+	
+		// Send a "message sent" message back to the sender
+		ControlMessage delivered(message->GetGUID(), ControlMessageType::MSG_DELIVERED);
+		std::wstring buffer;
+		delivered.Serialize(buffer);
+		
+		// Only send if the socket is not invalid
+		if (app->GetSocket() == INVALID_SOCKET)
+		{
+			// add to pending queue
+			m_PendingControlMessagesQueue.push({ app->GetHash(), std::move(delivered) });
+			Logger::logfmt<Log::ERR, 2048>("Could not send \"Msg DELIVERED\" receipt to %d for msg guid: %s. Adding to pending control message queue", senderHash, message->GetGUID().str());
+		}
+		else
+		{
+			*app << buffer;
 		}
 		return true;
 	}
@@ -186,8 +224,7 @@ void LCServer::SendMsgToClient(Message& msgRef, ServerDB::const_iterator clientI
 		throw std::runtime_error("Can't send message, invalid socket");
 	else
 	{
-		std::lock_guard<std::mutex> guard(app.GetStrmMutex());
-		app.GetStream() << serializedMsg;
+		app << serializedMsg;
 	}
 }
 

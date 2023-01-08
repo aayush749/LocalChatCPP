@@ -33,10 +33,8 @@ public:
 	bool IsActiveClient() const { return m_IsActive; }
 	uint64_t GetHash() const { return m_Hash; }
 
-	/*
-	Listens for incoming messages
-	NOTE: Currently terminates messages with only first character of delimiter!!
-	*/
+	friend ClientApp& operator<<(ClientApp& app, const std::wstring_view buffer);
+
 	void Listen();
 
 	void RemoveMessage(std::list<MessageSPtr>::iterator iterator);

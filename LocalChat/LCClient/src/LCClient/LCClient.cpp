@@ -3,6 +3,7 @@
 #include <utils/Conversion.h>
 #include <utils/SerializationUtils.h>
 #include <Message/ControlMessage.h>
+#include <Message/TextMessage.h>
 
 #include <Logger/Logger.h>
 
@@ -164,7 +165,13 @@ void LCClient::ListenIncomingMsgs()
 				Logger::logfmt<Log::INFO>("Message with id: %s is sent", guid.str().c_str());
 			}
 		}
-
-		Logger::logfmt<Log::INFO>("Received bytes: %s", std::string(buffer.begin(), buffer.end()).c_str());
+		else if (buffer._Starts_with(L"TxtMsg|"))
+		{
+			TextMessage tm = TextMessage::DeSerialize(buffer);
+			const std::wstring_view content = tm.GetContent();
+			Logger::logfmt<Log::WARNING>("New message received from \"Client#%ld\"! : %s", tm.GetSenderHash(), std::string(content.begin(), content.end()).c_str());
+		}
+		else
+			Logger::logfmt<Log::INFO>("Received bytes: %s", std::string(buffer.begin(), buffer.end()).c_str());
 	}
 }

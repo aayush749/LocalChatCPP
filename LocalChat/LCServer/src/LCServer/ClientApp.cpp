@@ -134,7 +134,7 @@ void ClientApp::Listen()
 		{
 
 			buffer.clear();
-			std::lock_guard<std::mutex> guard(m_StrmMutex);
+			//std::lock_guard<std::mutex> guard(m_StrmMutex);
 
 			getline(clientIStrm, buffer, L'\0');
 			clientIStrm.clear();	// clear the input buffer as soon as you read the data
@@ -200,8 +200,8 @@ void ClientApp::ProcessMessage(const Message& msg)
 			}
 			else
 			{
-				std::lock_guard<std::mutex> guard(m_StrmMutex);
-				m_Stream << content;
+				auto recipientApp = ::GLOBAL_SERVER.GetClientAppFromHash(recipientHash);
+				*recipientApp << content;
 				// Raise a MSG_DELIVERED event
 				Event<EventName::MSG_DELIVERED>::Raise(std::make_shared<TextMessage>(text.GetSenderHash(), text.GetRecipientHash(), text.GetContent()));
 			}
@@ -220,4 +220,11 @@ void ClientApp::ProcessMessage(const Message& msg)
 
 	// When nothing matches
 	//throw std::runtime_error("Unidentified message type passed.");
+}
+
+ClientApp& operator<<(ClientApp& app, const std::wstring_view buffer)
+{
+	std::lock_guard<std::mutex> guard(app.m_StrmMutex);
+	app.m_Stream << buffer;
+	return app;
 }

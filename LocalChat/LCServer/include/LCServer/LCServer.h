@@ -44,6 +44,7 @@ public:
 	void ListenForClients();
 
 	ntwk::Socket& GetClientSockFromClientHash(uint64_t clientHash);
+	ClientAppSPtr GetClientAppFromHash(ClientHashTp clientHash) { return m_ServerDB.at(clientHash); }
 
 	const bool ClientExists(uint64_t clientHash) { std::lock_guard<std::mutex> guard(m_ServerDBMutex);  return m_ServerDB.find(clientHash) != m_ServerDB.end(); }
 
@@ -51,6 +52,7 @@ public:
 	bool MessageDispatcher(uint64_t clientHash);
 	void RemoveClient(ClientHashTp clientHash);
 	bool MsgSentInfoHandler(MsgSPtr message);
+	bool MsgDeliveredInfoHandler(MsgSPtr message);
 
 	static uint64_t GetNewClientHash();
 
