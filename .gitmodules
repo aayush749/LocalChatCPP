@@ -7,3 +7,7 @@
 [submodule "LocalChat/vendor/crossguid"]
 	path = LocalChat/vendor/crossguid
 	url = git@github.com:graeme-hill/crossguid.git
+[submodule "LocalChat/LCClient/vendor/imgui"]
+	path = LocalChat/LCClient/vendor/imgui
+	url = git@github.com:ocornut/imgui.git
+	branch = docking
