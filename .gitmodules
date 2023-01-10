@@ -11,3 +11,6 @@
 	path = LocalChat/LCClient/vendor/imgui
 	url = git@github.com:ocornut/imgui.git
 	branch = docking
+[submodule "LocalChat/LCClient/vendor/GLFW"]
+	path = LocalChat/LCClient/vendor/GLFW
+	url = git@github.com:glfw/glfw.git
