@@ -10,9 +10,12 @@ cmake_policy(SET CMP0079 NEW)
 project("LCClient")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/inipp)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/Glad)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/GLFW)
 
 #include dirs
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Logger/include)
+list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/Glad/include)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/inipp)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/imgui)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/imgui/backends)
@@ -35,6 +38,10 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/vendor/imgui/imgui_dr
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/vendor/imgui/imgui_tables.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/vendor/imgui/imgui_widgets.cpp)
 
+#imgui glfw sources
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/vendor/imgui/backends/imgui_impl_glfw.cpp)
+
+
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/Message.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/TextMessage.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/ControlMessage.cpp)
@@ -49,6 +56,8 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClientMain.cpp)
 list(APPEND LIBS Networking)
 list(APPEND LIBS inipp::inipp)
 list(APPEND LIBS crossguid)
+list(APPEND LIBS Glad)
+list(APPEND LIBS glfw)
 
 add_executable(LCClient ${SOURCES})
 
