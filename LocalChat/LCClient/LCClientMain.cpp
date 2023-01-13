@@ -7,13 +7,19 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
-#include <Logger/Logger.h>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
 #include <glad/gl.h>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
+
+// My includes
+#include <Events/Event.h>
+#include <Events/EventName.h>
+#include <Logger/Logger.h>
+#include <Events/EventManager.h>
+#include <LCClient/UI/ConversationList.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -58,7 +64,7 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "LocalChat", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -86,8 +92,12 @@ int main(int, char**)
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         style.WindowRounding = 9.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 0.7f;
     }
+
+    //io.ConfigViewportsNoDecoration = false;
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = false;
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -102,7 +112,9 @@ int main(int, char**)
     // - Read 'docs/FONTS.md' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     //io.Fonts->AddFontDefault();
-    io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 18.0f);
+    ImFont* font24 = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 24.0f);
+    ImFont* font18 = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 18.0f);
+    ImFont* font12 = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 12.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
@@ -114,6 +126,8 @@ int main(int, char**)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    ConversationList list1 = { "Aayush Anand", "Amrita Anand", "ABCD Kumar" };
+    ConversationList list2 = { "Amrita Anand", "Aayush Anand" };
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -128,7 +142,7 @@ int main(int, char**)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+        ImGui::PushFont(font18);
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
@@ -138,10 +152,43 @@ int main(int, char**)
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+            // Alt + F4 to quit
+            if (io.KeyAlt && io.KeysDown[GLFW_KEY_F4])
+            {
+                Logger::LogInfo("Close requested from shortcut key");
+                break;
+            }
 
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    if (ImGui::MenuItem("Exit", "Alt+F4"))
+                    {
+                        Logger::LogInfo("Close requested!");
+
+                        break;  // will close the render loop
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
+
+            ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+
+
+            // Raise an IMGUI_RENDER event
+            Event<EventName::IMGUI_RENDER>::Raise();
+
+            ImGui::Begin("Chats", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse);                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::PushFont(font12);
             ImGui::Text("OpenGL Version: %d", version);               // Display some text (you can use a format strings too)
+            ImGui::PopFont();
+
+            ImGui::SameLine();
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::SameLine();
             ImGui::Checkbox("Another Window", &show_another_window);
 
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
@@ -153,6 +200,28 @@ int main(int, char**)
             ImGui::Text("counter = %d", counter);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            
+            // My code
+            static int curSelected = -1;
+            ImGui::PushFont(font24);
+            if (ImGui::TreeNode("Chats"))
+            {
+                ImGui::PopFont();
+                const char* items[] = { "Aayush Anand", "Amrita Anand", "ABCD Kumar" };
+                for (int itemNum = 0; itemNum < IM_ARRAYSIZE(items); itemNum++)
+                {
+                    const char* buf = items[itemNum];
+                    if (ImGui::Selectable(buf, curSelected == itemNum))
+                        curSelected = itemNum;
+                }
+                // Load Current Selected Actionable
+                ImGui::TreePop();
+                //ImGui::Text("Selected chat of %s", items[curSelected]);
+            }
+            else
+            {
+                ImGui::PopFont();
+            }
             ImGui::End();
         }
 
@@ -165,6 +234,7 @@ int main(int, char**)
                 show_another_window = false;
             ImGui::End();
         }
+        ImGui::PopFont();
 
         // Rendering
         ImGui::Render();
