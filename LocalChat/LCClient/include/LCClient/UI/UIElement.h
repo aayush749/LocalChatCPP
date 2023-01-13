@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+
 #include <Events/Event.h>
 
 #include <functional>
@@ -14,7 +16,8 @@ template <class Derived>
 class UIElement
 {
 public:
-	UIElement()
+	UIElement(ImGuiIO& imguiIO)
+		:io(imguiIO)
 	{
 		// Automatically bind listener to ImGui Render Event for appropriate UIElement
 		EventManager::AddListener<EventName::IMGUI_RENDER>(
@@ -35,4 +38,7 @@ public:
 		static_cast<Derived*>(this)->OnImGuiRender();
 		return false;	// Because we want all the UIElements to handle this event
 	}
+
+protected:
+	ImGuiIO& io;
 };

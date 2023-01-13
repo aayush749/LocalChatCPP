@@ -127,7 +127,7 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     ConversationList list1 = { "Aayush Anand", "Amrita Anand", "ABCD Kumar" };
-    ConversationList list2 = { "Amrita Anand", "Aayush Anand" };
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -177,8 +177,7 @@ int main(int, char**)
             ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
 
-            // Raise an IMGUI_RENDER event
-            Event<EventName::IMGUI_RENDER>::Raise();
+            
 
             ImGui::Begin("Chats", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse);                          // Create a window called "Hello, world!" and append into it.
 
@@ -202,26 +201,9 @@ int main(int, char**)
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             
             // My code
-            static int curSelected = -1;
-            ImGui::PushFont(font24);
-            if (ImGui::TreeNode("Chats"))
-            {
-                ImGui::PopFont();
-                const char* items[] = { "Aayush Anand", "Amrita Anand", "ABCD Kumar" };
-                for (int itemNum = 0; itemNum < IM_ARRAYSIZE(items); itemNum++)
-                {
-                    const char* buf = items[itemNum];
-                    if (ImGui::Selectable(buf, curSelected == itemNum))
-                        curSelected = itemNum;
-                }
-                // Load Current Selected Actionable
-                ImGui::TreePop();
-                //ImGui::Text("Selected chat of %s", items[curSelected]);
-            }
-            else
-            {
-                ImGui::PopFont();
-            }
+            // Raise an IMGUI_RENDER event
+            Event<EventName::IMGUI_RENDER>::Raise();
+
             ImGui::End();
         }
 
