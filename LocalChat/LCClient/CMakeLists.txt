@@ -19,6 +19,7 @@ list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/Glad/include)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/inipp)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/imgui)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/imgui/backends)
+list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/stb/include)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Networking/include)
 
