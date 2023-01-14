@@ -6,7 +6,9 @@
 
 #include <functional>
 
-#define MAKE_UI_ELEMENT(ClassName) : public UIElement<ClassName>
+#define MAKE_UI_ELEMENT(ClassName) : public UIElement<ClassName>\
+									 {\
+										using BaseClassTp = UIElement<ClassName>;
 
 /// <summary>
 /// An abstract base class for all UI elements, utilizes the CRTP pattern

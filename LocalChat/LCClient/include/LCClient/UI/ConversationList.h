@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include <LCClient/UI/UIElement.h>
+#include <LCClient/UI/Chat.h>
 #include <Logger/Logger.h>
 
 #include <string>
@@ -10,8 +11,6 @@
 #include <initializer_list>
 
 class ConversationList MAKE_UI_ELEMENT(ConversationList)
-{
-	using BaseClassTp = UIElement<ConversationList>;
 public:
 	
 	ConversationList()
@@ -49,7 +48,11 @@ public:
 
 			ImGui::TreePop();
 			if (curSelected >= 0 && curSelected < m_Contacts.size())
-				ImGui::Text("Selected chat of \"%s\"", m_Contacts[curSelected].c_str());
+			{
+				static Chat chat(1001);
+				/*ImGui::Text("Selected chat of \"%s\"", m_Contacts[curSelected].c_str());*/
+
+			}
 		}
 		else
 		{
