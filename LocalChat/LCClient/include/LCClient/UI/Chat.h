@@ -9,6 +9,7 @@
 #include <Message/TextMessage.h>
 
 #include <memory>
+#include <imgui_internal.h>
 
 class Chat MAKE_UI_ELEMENT(Chat)
 
@@ -52,17 +53,53 @@ public:
 			static TextMessage tm(1001, 1002, L"Simple Text Message");
 			static MessageBlob mBlob[10] = { MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm) };
 			for (int i = 0; i < 10; i++)	mBlob[i].CustomImGuiRender();
+			
 
-			char buf[128] = { 0 };
-			ImGui::InputTextWithHint("##text", "Type here...", buf, IM_ARRAYSIZE(buf));
-			ImGui::SameLine();
-			if (ImGui::Button("Send", { 50, 30 }))
 			{
-				Logger::logfmt<Log::INFO>("Send button clicked by Client#%ld!", m_ClientHash);
+				const ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar;
+				
+				ImGui::SetNextWindowSize(ImVec2(ImGui::GetContentRegionAvail().x, 100));
+				ImGui::Begin("Type New Message", NULL, ImGuiWindowFlags_HorizontalScrollbar);
+				char buf[(size_t)1e2] = {0};
+				
+				static ImVector<char> my_str;
+				if (my_str.empty())
+					my_str.push_back(0);
+				Chat::CustomInputLineEx("##MyStr", "Type message here...", &my_str, ImVec2(ImGui::GetContentRegionAvail().x * 0.919, ImGui::GetContentRegionAvail().y - 5.0f), ImGuiInputTextFlags_Multiline);
+
+				ImGui::SameLine();
+				if (ImGui::Button("Send", { 50, 30 }))
+				{
+					Logger::logfmt<Log::INFO>("%s", my_str.begin());
+				}
+				
+
+				ImGui::End();
 			}
+			
 		}
 		ImGui::End();
 		
+	}
+
+private:
+	static int TextResizeCallback(ImGuiInputTextCallbackData* data)
+	{
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+		{
+			ImVector<char>* my_str = (ImVector<char>*)data->UserData;
+			IM_ASSERT(my_str->begin() == data->Buf);
+			my_str->resize(data->BufSize); // NB: On resizing calls, generally data->BufSize == data->BufTextLen + 1
+			data->Buf = my_str->begin();
+		}
+		return 0;
+	}
+
+	static bool CustomInputLineEx(const char* label, const char* hint, ImVector<char>* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
+	{
+		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+		return ImGui::InputTextEx(label, hint, my_str->begin(), (size_t)my_str->size(), size, flags | ImGuiInputTextFlags_CallbackResize, Chat::TextResizeCallback, (void*)my_str);
+		//return ImGui::InputTextMultiline(label, my_str->begin(), (size_t)my_str->size(), size, flags | ImGuiInputTextFlags_CallbackResize, Chat::TextResizeCallback , (void*)my_str);
 	}
 
 private:
