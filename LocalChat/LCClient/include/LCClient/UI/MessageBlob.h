@@ -17,7 +17,7 @@ public:
 		,m_Message(msg)
 		,m_ImgData(nullptr)
 	{
-		LoadImageFromFile("../../../../LocalChat/LCClient/res/images/chat/chat_bubble.png");
+		LoadImageFromFile("../../../../LocalChat/LCClient/res/images/chat/chat_bubble_out.png");
 		if (m_ImgData == nullptr)
 		{
 			char curPath[1024] = { 0 };
