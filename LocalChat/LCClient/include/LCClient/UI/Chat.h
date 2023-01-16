@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <LCCLient/UI/TextureLoader.h>
 #include <LCClient/UI/UIElement.h>
 #include <LCClient/UI/MessageBlob.h>
 #include <Logger/Logger.h>
@@ -10,6 +11,8 @@
 
 #include <memory>
 #include <imgui_internal.h>
+
+extern TextureLoader GLOBAL_TEX_LOADER;
 
 class Chat MAKE_UI_ELEMENT(Chat)
 
@@ -52,7 +55,26 @@ public:
 			// Just Testing, don't ship with this
 			static TextMessage tm(1001, 1002, L"Simple Text Message");
 			static MessageBlob mBlob[10] = { MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm) };
-			for (int i = 0; i < 10; i++)	mBlob[i].CustomImGuiRender();
+			for (int i = 0; i < 10; i++)
+			{
+				if (i % 2 == 0)
+					if (GLOBAL_TEX_LOADER.IsLoaded(TextureType::CHAT_BUBBLE_IN))
+						mBlob[i].SetTextureID(
+							GLOBAL_TEX_LOADER.GetTextureID(TextureType::CHAT_BUBBLE_IN).value()
+						);
+
+					else
+						continue;
+				else
+					if (GLOBAL_TEX_LOADER.IsLoaded(TextureType::CHAT_BUBBLE_OUT))
+						mBlob[i].SetTextureID(
+							GLOBAL_TEX_LOADER.GetTextureID(TextureType::CHAT_BUBBLE_OUT).value()
+						);
+					else
+						continue;
+
+				mBlob[i].CustomImGuiRender(i % 2 != 0);
+			}
 			
 
 			{

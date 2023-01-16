@@ -20,6 +20,9 @@
 #include <Logger/Logger.h>
 #include <Events/EventManager.h>
 #include <LCClient/UI/ConversationList.h>
+#include <LCClient/UI/TextureLoader.h>
+
+#include <array>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -32,6 +35,14 @@ static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+
+// Texture loader setup
+TextureLoader GLOBAL_TEX_LOADER;
+constexpr std::array<const char*, (size_t)TextureType::COUNT> texturePaths = {
+    "../../../../LocalChat/LCClient/res/images/chat/chat_bubble_in.png",
+    "../../../../LocalChat/LCClient/res/images/chat/chat_bubble_out.png"
+};
+
 
 int main(int, char**)
 {
@@ -125,6 +136,9 @@ int main(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // Load Textures
+    GLOBAL_TEX_LOADER.LoadAllTextures(texturePaths);
 
     ConversationList list1 = { "Graham Potter", "Xavi Hernandez", "Steven Gerard" };
 

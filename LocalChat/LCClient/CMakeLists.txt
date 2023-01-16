@@ -43,7 +43,6 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/vendor/imgui/imgui_wi
 #imgui glfw sources
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/vendor/imgui/backends/imgui_impl_glfw.cpp)
 
-
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/Message.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/TextMessage.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/core/Message/ControlMessage.cpp)
@@ -51,6 +50,7 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/src/SerializationUtils.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/src/Conversion.cpp)
 
 
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/TextureLoader.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/LCClient.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClientMain.cpp)
 
