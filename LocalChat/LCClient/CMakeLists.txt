@@ -12,6 +12,7 @@ project("LCClient")
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/inipp)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/Glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/GLFW)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/stb)
 
 #include dirs
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Logger/include)
@@ -59,6 +60,7 @@ list(APPEND LIBS inipp::inipp)
 list(APPEND LIBS crossguid)
 list(APPEND LIBS Glad)
 list(APPEND LIBS glfw)
+list(APPEND LIBS stb_image)
 
 add_executable(LCClient ${SOURCES})
 
