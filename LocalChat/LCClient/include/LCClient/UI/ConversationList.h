@@ -49,9 +49,7 @@ public:
 			ImGui::TreePop();
 			if (curSelected >= 0 && curSelected < m_Contacts.size())
 			{
-				static Chat chat(1001);
-				/*ImGui::Text("Selected chat of \"%s\"", m_Contacts[curSelected].c_str());*/
-
+				static Chat chat(1001, m_Contacts[curSelected].c_str());
 			}
 		}
 		else

@@ -18,9 +18,10 @@ class Chat MAKE_UI_ELEMENT(Chat)
 
 	using MessageUPtr = std::unique_ptr<Message>;
 public:
-	Chat(uint64_t clientHash)
+	Chat(uint64_t clientHash, const char* displayName = nullptr)
 		:BaseClassTp(ImGui::GetIO())
 		,m_ClientHash(clientHash)
+		,m_DisplayName(displayName)
 	{}
 
 	void PushMsg(MessageUPtr& msg)
@@ -35,7 +36,7 @@ public:
 
 	void OnImGuiRender()
 	{
-		if (ImGui::Begin("Chat Window"))
+		if (ImGui::Begin(m_DisplayName ? m_DisplayName : "Chat Window"))
 		{
 			for (const MessageUPtr& message : m_Messages)
 			{
@@ -126,5 +127,6 @@ private:
 
 private:
 	uint64_t m_ClientHash;
+	const char* m_DisplayName;
 	std::vector<MessageUPtr> m_Messages;
 };
