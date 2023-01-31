@@ -9,6 +9,8 @@ cmake_policy(SET CMP0079 NEW)
 
 project("LCClient")
 
+add_compile_definitions(IMGUI_USE_WCHAR32)
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/inipp)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/Glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/GLFW)

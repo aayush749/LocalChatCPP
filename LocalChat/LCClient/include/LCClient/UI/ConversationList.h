@@ -15,17 +15,23 @@ public:
 	
 	ConversationList()
 		:UIElement<ConversationList>(ImGui::GetIO())
-	{}
+	{
+		OnCreate();
+	}
 	
 	ConversationList(const std::vector<std::string>& contacts)
 		:UIElement<ConversationList>(ImGui::GetIO())
 		,m_Contacts(contacts)
-	{}
+	{
+		OnCreate();
+	}
 	
 	ConversationList(const std::initializer_list<std::string>& contacts)
 		:UIElement<ConversationList>(ImGui::GetIO())
 		,m_Contacts(contacts)
-	{}
+	{
+		OnCreate();
+	}
 
 	void OnCreate()
 	{

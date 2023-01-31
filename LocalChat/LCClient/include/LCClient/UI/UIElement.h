@@ -27,7 +27,7 @@ public:
 		);
 
 		// Then call on create
-		static_cast<Derived*>(this)->OnCreate();
+		//static_cast<Derived*>(this)->OnCreate();
 	}
 
 	void OnCreate()

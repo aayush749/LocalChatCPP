@@ -253,6 +253,7 @@ int main(int, char**)
         }
 
         glfwSwapBuffers(window);
+        glfwSwapInterval(1);
     }
 
     // Cleanup

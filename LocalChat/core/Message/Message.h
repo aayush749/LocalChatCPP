@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <Serializable/Serializable.h>
+#include <Message/MessageType.h>
 
 #include <crossguid/guid.hpp>
 
@@ -14,6 +15,8 @@ public:
 	uint64_t GetRecipientHash() const { return m_RecipientHash; }
 	const xg::Guid& GetGUID() const { return m_GUID; }
 	const std::wstring_view GetGUIDWStrView() const { return m_GuidWStr; }
+
+	MessageType GetType() const { return m_Type; }
 
 	bool IsSent() const { return m_IsSent; }
 	bool IsDelivered() const { return m_IsDelivered; }
@@ -43,7 +46,11 @@ protected:
 		,m_RecipientHash(recipientHash)
 	{}
 
+	void SetType(MessageType type) { m_Type = type; }
+
+
 protected:
+	MessageType m_Type = MessageType::MSG_NONE;
 	xg::Guid m_GUID;
 	uint64_t m_SenderHash;
 	uint64_t m_RecipientHash;

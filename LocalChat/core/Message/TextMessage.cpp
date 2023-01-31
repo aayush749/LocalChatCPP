@@ -3,34 +3,44 @@
 
 TextMessage::TextMessage(uint64_t senderHash, uint64_t recipientHash)
 	:Message(senderHash, recipientHash)
-{}
+{
+	SetType(MessageType::MSG_TEXT);
+}
 
 TextMessage::TextMessage(uint64_t senderHash, uint64_t recipientHash, const std::wstring_view content)
 	:Message(senderHash, recipientHash)
 	,m_Body(content)
-{}
+{
+	SetType(MessageType::MSG_TEXT);
+}
 
 TextMessage::TextMessage(xg::Guid guid, uint64_t senderHash, uint64_t recipientHash, const std::wstring_view content)
 	:Message(guid, senderHash, recipientHash)
 	,m_Body(content)
 {
+	SetType(MessageType::MSG_TEXT);
 }
 
 TextMessage::TextMessage(const std::wstring_view guidWStrView, uint64_t senderHash, uint64_t recipientHash, const std::wstring_view content)
 	:Message(guidWStrView, senderHash, recipientHash)
 	,m_Body(content)
 {
+	SetType(MessageType::MSG_TEXT);
 }
 
 TextMessage::TextMessage(const TextMessage& other)
 	:Message(other.m_GUID, other.m_SenderHash, other.m_RecipientHash)
 	,m_Body(other.m_Body)
-{}
+{
+	SetType(MessageType::MSG_TEXT);
+}
 
 TextMessage::TextMessage(TextMessage&& other) noexcept
 	:Message(other.m_GUID, other.m_SenderHash, other.m_RecipientHash)
 	,m_Body(std::move(other.m_Body))
 {
+	SetType(MessageType::MSG_TEXT);
+
 	other.m_GUID = xg::Guid();	// empty guid
 	other.m_SenderHash = 0;
 	other.m_RecipientHash = 0;
@@ -81,6 +91,8 @@ TextMessage TextMessage::DeSerialize(_In_ const std::wstring_view& buffer)
 
 TextMessage& TextMessage::operator=(const TextMessage& other)
 {
+	m_Type = MessageType::MSG_TEXT;
+
 	m_GUID = other.m_GUID;
 	m_GuidWStr = other.m_GuidWStr;
 	m_SenderHash = other.m_SenderHash;
@@ -91,6 +103,8 @@ TextMessage& TextMessage::operator=(const TextMessage& other)
 
 TextMessage& TextMessage::operator=(TextMessage&& other) noexcept
 {
+	m_Type = MessageType::MSG_TEXT;
+
 	m_GUID = std::move(m_GUID);
 	m_GuidWStr = std::move(other.m_GuidWStr);
 	m_SenderHash = other.m_SenderHash;

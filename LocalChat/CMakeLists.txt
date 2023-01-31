@@ -2,9 +2,9 @@
 # project specific logic here.
 #
 
-option(BUILD_SERVER "Builds only the LCServer" ON)
+option(BUILD_SERVER "Builds only the LCServer" OFF)
 option(BUILD_CLIENT "Builds only the LCClient" OFF)
-option(BUILD_SERVER_AND_CLIENT "Builds both LCServer and LCClient" OFF)
+option(BUILD_SERVER_AND_CLIENT "Builds both LCServer and LCClient" ON)
 
 if(BUILD_SERVER)
 	add_subdirectory("LCServer")
