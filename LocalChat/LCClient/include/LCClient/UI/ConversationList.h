@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <initializer_list>
+#include <unordered_map>
 
 class ConversationList MAKE_UI_ELEMENT(ConversationList)
 public:
@@ -56,16 +57,32 @@ public:
 			ImGui::TreePop();
 			if (curSelected >= 0 && curSelected < m_Contacts.size())
 			{
-				static Chat chat(1001, m_Contacts[curSelected].c_str());
+				auto it = m_ChatsMap.find(m_Contacts[curSelected]);
+				if (it != m_ChatsMap.cend())
+				{
+					// chat has already been spawned 
+				}
+				else
+				{
+					m_ChatsMap[m_Contacts[curSelected]] = std::make_unique<Chat>(1001, m_Contacts[curSelected].c_str());
+					m_ChatsMap[m_Contacts[curSelected]]->OnCreate();
+				}
 			}
 		}
 		else
 		{
 			ImGui::PopFont();
 		}
+
+		// Now render all chats
+		for (const auto& [clientName, chat] : m_ChatsMap)
+		{
+			chat->OnImGuiRender();
+		}
 	}
 
 private:
 	std::vector<std::string> m_Contacts;
+	std::unordered_map<std::string, std::unique_ptr<Chat>> m_ChatsMap;
 	ImFont* m_Font = nullptr;
 };

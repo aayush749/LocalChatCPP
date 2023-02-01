@@ -35,11 +35,5 @@ struct EventFn<EventName::CLIENT_ACTIVE>
 	using type = std::function<bool(uint64_t)>;
 };
 
-template <>
-struct EventFn<EventName::IMGUI_RENDER>
-{
-	using type = std::function<bool(void)>;
-};
-
 template <EventName event>
 using EventFn_t = typename EventFn<event>::type;

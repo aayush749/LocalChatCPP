@@ -21,13 +21,7 @@ public:
 	UIElement(ImGuiIO& imguiIO)
 		:io(imguiIO)
 	{
-		// Automatically bind listener to ImGui Render Event for appropriate UIElement
-		EventManager::AddListener<EventName::IMGUI_RENDER>(
-			std::bind(&UIElement::OnImGuiRender, static_cast<Derived*>(this))
-		);
-
-		// Then call on create
-		//static_cast<Derived*>(this)->OnCreate();
+		
 	}
 
 	void OnCreate()

@@ -220,8 +220,9 @@ int main(int, char**)
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             
             // My code
-            // Raise an IMGUI_RENDER event
-            Event<EventName::IMGUI_RENDER>::Raise();
+            
+            list1.OnCreate();
+            list1.OnImGuiRender();
 
             ImGui::End();
         }
