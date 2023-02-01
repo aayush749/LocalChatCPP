@@ -5,6 +5,7 @@
 #include <LCClient/UI/UIElement.h>
 #include <LCClient/UI/Chat.h>
 #include <Logger/Logger.h>
+#include <LCClient/UI/FontManager.h>
 
 #include <string>
 #include <vector>
@@ -35,7 +36,7 @@ public:
 
 	void OnCreate()
 	{
-		m_Font = BaseClassTp::io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 24.0f);
+		m_Font = FontManager::GetFont(FontUsage::FONT_USAGE_CONVERSATION_LIST);
 	}
 
 	void OnImGuiRender()

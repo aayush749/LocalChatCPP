@@ -21,6 +21,7 @@
 #include <Events/EventManager.h>
 #include <LCClient/UI/ConversationList.h>
 #include <LCClient/UI/TextureLoader.h>
+#include <LCClient/UI/FontManager.h>
 
 #include <array>
 
@@ -43,6 +44,7 @@ constexpr std::array<const char*, (size_t)TextureType::COUNT> texturePaths = {
     "../../../../LocalChat/LCClient/res/images/chat/chat_bubble_out.png"
 };
 
+void SetupFonts();
 
 int main(int, char**)
 {
@@ -126,6 +128,9 @@ int main(int, char**)
     ImFont* font24 = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 24.0f);
     ImFont* font18 = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 18.0f);
     ImFont* font12 = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\CascadiaCode.ttf", 12.0f);
+
+    SetupFonts();
+
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
@@ -265,4 +270,10 @@ int main(int, char**)
     glfwTerminate();
 
     return 0;
+}
+
+void SetupFonts()
+{
+    FontManager::SetFont(FontUsage::FONT_USAGE_CONVERSATION_LIST, "c:\\Windows\\Fonts\\CascadiaCode.ttf", 24.0f);
+    FontManager::SetFont(FontUsage::FONT_USAGE_MESSAGE_BLOB, "C:/Windows/Fonts/REFSAN.TTF", 24.0f);
 }
