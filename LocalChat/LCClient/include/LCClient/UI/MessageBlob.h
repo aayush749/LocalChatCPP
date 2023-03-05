@@ -13,18 +13,26 @@
 #include <Message/TextMessage.h>
 #include <LCClient/UI/FontManager.h>
 
+extern TextureLoader GLOBAL_TEX_LOADER;
+
 class MessageBlob MAKE_UI_ELEMENT(MessageBlob)
 public:
-	MessageBlob(const Message& msg)
+	MessageBlob(std::unique_ptr<Message> msg, bool renderRight = true)
 		:BaseClassTp(ImGui::GetIO())
-		,m_Message(msg), m_TextureID(0)
+		, m_MessagePtr(std::move(msg)), m_TextureID(0)
 		,m_Size()
+		,m_RenderRight(renderRight)
 	{
 		OnCreate();
 	}
 
 	void OnCreate()
 	{
+		if (m_RenderRight)
+			SetTextureID(GLOBAL_TEX_LOADER.GetTextureID(TextureType::CHAT_BUBBLE_OUT).value());
+		else
+			SetTextureID(GLOBAL_TEX_LOADER.GetTextureID(TextureType::CHAT_BUBBLE_IN).value());
+		
 		if (s_TxtMsgFont)
 			return;
 
@@ -33,22 +41,16 @@ public:
 
 	void OnImGuiRender()
 	{
-	}
-
-	void SetTextureID(GLuint textureID) { if (textureID != m_TextureID) m_TextureID = textureID; }
-
-	void CustomImGuiRender(bool renderRight = false)
-	{
 		ImGui::PushFont(s_TxtMsgFont);
 
 		ImVec2 contentRegionSz = ImGui::GetContentRegionAvail();
-		m_Size = { contentRegionSz.x / 2, (float) GetBlobHeight(contentRegionSz.x / 2)};
+		m_Size = { contentRegionSz.x / 2, (float)GetBlobHeight(contentRegionSz.x / 2) };
 
 		ImVec2 size = m_Size;
 		const float width = size.x;
 		const float height = size.y;
 
-		if (!renderRight)
+		if (!m_RenderRight)
 		{
 			RenderTowardsLeft(size);
 		}
@@ -60,6 +62,8 @@ public:
 		ImGui::PopFont();
 	}
 
+	void SetTextureID(GLuint textureID) { if (textureID != m_TextureID) m_TextureID = textureID; }
+
 private:
 	void RenderTowardsLeft(ImVec2 size);
 	void RenderTowardsRight(ImVec2 size);
@@ -69,20 +73,21 @@ private:
 private:
 	size_t GetBlobHeight(const float currentBlobWidth);
 private:
-	const Message& m_Message;
+	const std::unique_ptr<Message> m_MessagePtr;
 	ImVec2 m_Size;
 	GLuint m_TextureID;
+	bool m_RenderRight;
 };
 
 size_t MessageBlob::GetBlobHeight(const float currentBlobWidth)
 {
 	const float minBlobHeight = 100.0f;
 	float blobHeight;
-	switch (m_Message.GetType())
+	switch (m_MessagePtr->GetType())
 	{
 		case MessageType::MSG_TEXT:
 		{
-			blobHeight = static_cast<const TextMessage&>(m_Message).GetContent().size();
+			blobHeight = static_cast<const TextMessage&>(*m_MessagePtr).GetContent().size();
 			break;
 		}
 	}
@@ -109,11 +114,11 @@ void MessageBlob::RenderTowardsLeft(ImVec2 size)
 	ImGui::SetCursorPos({ oldCursorPos.x + leftMargin, oldCursorPos.y + topMargin });
 
 	// text formatting if its a text message
-	switch (m_Message.GetType())
+	switch (m_MessagePtr->GetType())
 	{
 	case MessageType::MSG_TEXT:
 	{
-		const TextMessage& tm = static_cast<const TextMessage&>(m_Message);
+		const TextMessage& tm = static_cast<const TextMessage&>(*m_MessagePtr);
 
 		static float percentage = 0.90;
 		const std::string content(tm.GetContent().begin(), tm.GetContent().end());
@@ -154,11 +159,11 @@ void MessageBlob::RenderTowardsRight(ImVec2 size)
 	ImGui::SetCursorPos({ oldCursorPos.x + leftMargin, oldCursorPos.y + topMargin });
 
 	// text formatting if its a text message
-	switch (m_Message.GetType())
+	switch (m_MessagePtr->GetType())
 	{
 	case MessageType::MSG_TEXT:
 	{
-		const TextMessage& tm = static_cast<const TextMessage&>(m_Message);
+		const TextMessage& tm = static_cast<const TextMessage&>(*m_MessagePtr);
 
 		static float percentage = 0.80;
 		const std::string content(tm.GetContent().begin(), tm.GetContent().end());

@@ -38,45 +38,10 @@ public:
 	{
 		if (ImGui::Begin(m_DisplayName ? m_DisplayName : "Chat Window"))
 		{
-			for (const MessageUPtr& message : m_Messages)
+			for (auto& blob : m_Blobs)
 			{
-				if (message->GetSenderHash() == m_ClientHash)
-				{
-					// Message was sent by current client
-					// So, Render at right
-					static MessageBlob mblob(*message);
-				}
-				else
-				{
-					// Message was sent by different client
-					// So, Render at left
-				}
+				blob->OnImGuiRender();
 			}
-
-			// Just Testing, don't ship with this
-			static TextMessage tm(1001, 1002, L"Dolor magna eget est lorem ipsum dolor sit amet consectetur. Purus viverra accumsan in nisl nisi scelerisque eu ultrices vitae. Eget mauris pharetra et ultrices neque. Pellentesque habitant morbi tristique senectus et netus et. Pharetra sit amet aliquam id diam maecenas ultricies. Faucibus nisl tincidunt eget nullam non. Sit amet cursus sit amet dictum sit amet. Sapien nec sagittis aliquam malesuada bibendum. Suscipit tellus mauris a diam maecenas sed enim ut sem. Faucibus et molestie ac feugiat. Tortor aliquam nulla facilisi cras. Nec dui nunc mattis enim ut tellus elementum sagittis vitae. Nisl nisi scelerisque eu ultrices vitae auctor eu. Porttitor lacus luctus accumsan tortor posuere. Vitae purus faucibus ornare suspendisse. Viverra adipiscing at in tellus integer feugiat. Nec ullamcorper sit amet risus nullam. Aliquet lectus proin nibh nisl condimentum. Elit pellentesque habitant morbi tristique senectus. Sed sed risus pretium quam vulputate dignissim suspendisse in.");
-			static MessageBlob mBlob[10] = { MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm), MessageBlob(tm) };
-			for (int i = 0; i < 10; i++)
-			{
-				if (i % 2 == 0)
-					if (GLOBAL_TEX_LOADER.IsLoaded(TextureType::CHAT_BUBBLE_IN))
-						mBlob[i].SetTextureID(
-							GLOBAL_TEX_LOADER.GetTextureID(TextureType::CHAT_BUBBLE_IN).value()
-						);
-
-					else
-						continue;
-				else
-					if (GLOBAL_TEX_LOADER.IsLoaded(TextureType::CHAT_BUBBLE_OUT))
-						mBlob[i].SetTextureID(
-							GLOBAL_TEX_LOADER.GetTextureID(TextureType::CHAT_BUBBLE_OUT).value()
-						);
-					else
-						continue;
-
-				mBlob[i].CustomImGuiRender(i % 2 != 0);
-			}
-			
 
 			{
 				const ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar;
@@ -94,6 +59,9 @@ public:
 				if (ImGui::Button("Send", { 50, 30 }))
 				{
 					Logger::logfmt<Log::INFO>("%s", my_str.begin());
+					std::wstring msg(my_str.begin(), my_str.begin() + my_str.size());
+					m_Blobs.push_back(std::make_unique<MessageBlob>(
+						std::make_unique<TextMessage>(1001, m_ClientHash, msg), true));
 				}
 				
 
@@ -129,4 +97,5 @@ private:
 	uint64_t m_ClientHash;
 	const char* m_DisplayName;
 	std::vector<MessageUPtr> m_Messages;
+	std::vector<std::unique_ptr<MessageBlob>> m_Blobs;
 };
