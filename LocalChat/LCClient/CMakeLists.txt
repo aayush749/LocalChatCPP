@@ -15,6 +15,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/inipp)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/Glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/GLFW)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/stb)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/miniaudio)
 
 #include dirs
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Logger/include)
@@ -23,6 +24,7 @@ list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/inipp)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/imgui)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/imgui/backends)
 list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/stb/include)
+list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/miniaudio/include)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/Networking/include)
 
@@ -53,6 +55,7 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/src/Conversion.cpp)
 
 
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/TextureLoader.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/Audio/AudioManager.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/LCClient.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClientMain.cpp)
 
@@ -63,6 +66,7 @@ list(APPEND LIBS crossguid)
 list(APPEND LIBS Glad)
 list(APPEND LIBS glfw)
 list(APPEND LIBS stb_image)
+list(APPEND LIBS miniaudio)
 
 add_executable(LCClient ${SOURCES})
 

@@ -22,6 +22,7 @@
 #include <LCClient/UI/ConversationList.h>
 #include <LCClient/UI/TextureLoader.h>
 #include <LCClient/UI/FontManager.h>
+#include <LCClient/Audio/AudioManager.h>
 
 #include <array>
 
@@ -147,6 +148,12 @@ int main(int, char**)
 
     ConversationList list1 = { "Graham Potter", "Xavi Hernandez", "Steven Gerard" };
 
+    AudioManager::Init();
+
+    // Load audios
+    const char* testAudioPath = "../../../../LocalChat/LCClient/res/audio/447194-Whatsapp-send-recieve.wav";
+    AudioManager::LoadAudio(AudioAlert::MSG_SENT, testAudioPath);
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -155,7 +162,6 @@ int main(int, char**)
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        glfwPollEvents();
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -258,6 +264,7 @@ int main(int, char**)
             glfwMakeContextCurrent(backup_current_context);
         }
 
+        glfwPollEvents();
         glfwSwapBuffers(window);
         glfwSwapInterval(1);
     }
@@ -269,6 +276,8 @@ int main(int, char**)
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    AudioManager::Cleanup();
 
     return 0;
 }

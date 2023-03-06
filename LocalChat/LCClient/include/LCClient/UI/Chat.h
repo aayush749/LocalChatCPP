@@ -8,6 +8,7 @@
 #include <Logger/Logger.h>
 #include <Message/Message.h>
 #include <Message/TextMessage.h>
+#include <LCClient/Audio/AudioManager.h>
 
 #include <memory>
 #include <imgui_internal.h>
@@ -62,6 +63,9 @@ public:
 					std::wstring msg(my_str.begin(), my_str.begin() + my_str.size());
 					m_Blobs.push_back(std::make_unique<MessageBlob>(
 						std::make_unique<TextMessage>(1001, m_ClientHash, msg), true));
+
+					// Play audio
+					AudioManager::PlayAudio(AudioAlert::MSG_SENT);
 				}
 				
 
