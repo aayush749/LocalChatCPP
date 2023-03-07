@@ -23,19 +23,13 @@ void AudioManager::Cleanup()
 void AudioManager::LoadAudio(AudioAlert audioType, std::string_view audioFile)
 {
     ma_result result;
-    ma_sound sound;
+    ma_sound& sound = s_AudioCache[audioType];
 
     result = ma_sound_init_from_file(&s_AudioEngine, audioFile.data(), 0, NULL, NULL, &sound);
     if (result != MA_SUCCESS)
     {
         Logger::logfmt<Log::ERR>("Could not load audio from file: \"%s\"", audioFile);
     }
-
-    s_AudioCache.insert(
-        {
-            audioType, sound
-        }
-    );
 }
 
 void AudioManager::PlayAudio(AudioAlert audioType)
