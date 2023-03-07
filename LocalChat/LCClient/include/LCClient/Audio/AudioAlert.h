@@ -2,5 +2,5 @@
 
 enum class AudioAlert
 {
-	MSG_SENT, MSG_DELIVERED
+	MSG_SENT, MSG_RECV
 };

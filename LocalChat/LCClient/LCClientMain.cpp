@@ -151,8 +151,10 @@ int main(int, char**)
     AudioManager::Init();
 
     // Load audios
-    const char* testAudioPath = "../../../../LocalChat/LCClient/res/audio/447194-Whatsapp-send-recieve.wav";
-    AudioManager::LoadAudio(AudioAlert::MSG_SENT, testAudioPath);
+    const char* sentMsgAudioPath = "../../../../LocalChat/LCClient/res/audio/audio-send.wav";
+    const char* recvMsgAudioPath = "../../../../LocalChat/LCClient/res/audio/audio-receive.wav";
+    AudioManager::LoadAudio(AudioAlert::MSG_SENT, sentMsgAudioPath);
+    AudioManager::LoadAudio(AudioAlert::MSG_RECV, recvMsgAudioPath);
 
     // Main loop
     while (!glfwWindowShouldClose(window))
