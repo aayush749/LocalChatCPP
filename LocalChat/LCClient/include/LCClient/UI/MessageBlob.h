@@ -64,6 +64,8 @@ public:
 
 	void SetTextureID(GLuint textureID) { if (textureID != m_TextureID) m_TextureID = textureID; }
 
+	std::wstring GetSerializedContent();
+
 private:
 	void RenderTowardsLeft(ImVec2 size);
 	void RenderTowardsRight(ImVec2 size);
@@ -177,4 +179,13 @@ void MessageBlob::RenderTowardsRight(ImVec2 size)
 
 	//reset cursor pos
 	ImGui::SetCursorPos(newCursorPos);
+}
+
+std::wstring MessageBlob::GetSerializedContent()
+{
+	std::wstring serialized;
+
+	m_MessagePtr->Serialize(serialized);
+	
+	return serialized;
 }

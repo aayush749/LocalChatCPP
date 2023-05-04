@@ -9,11 +9,13 @@
 #include <Message/Message.h>
 #include <Message/TextMessage.h>
 #include <LCClient/Audio/AudioManager.h>
+#include <LCClient/LCClient.h>
 
 #include <memory>
 #include <imgui_internal.h>
 
 extern TextureLoader GLOBAL_TEX_LOADER;
+extern LCClient GLOBAL_CLIENT;
 
 class Chat MAKE_UI_ELEMENT(Chat)
 
@@ -61,8 +63,11 @@ public:
 				{
 					Logger::logfmt<Log::INFO>("%s", my_str.begin());
 					std::wstring msg(my_str.begin(), my_str.begin() + my_str.size());
+
 					m_Blobs.push_back(std::make_unique<MessageBlob>(
-						std::make_unique<TextMessage>(1001, m_ClientHash, msg), true));
+						std::make_unique<TextMessage>(GLOBAL_CLIENT.GetHash(), m_ClientHash, msg), true));
+
+					GLOBAL_CLIENT.GetStream() << m_Blobs.back()->GetSerializedContent();
 
 					// Play audio
 					AudioManager::PlayAudio(AudioAlert::MSG_SENT);

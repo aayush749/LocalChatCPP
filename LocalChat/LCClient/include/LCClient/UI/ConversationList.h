@@ -64,7 +64,7 @@ public:
 				}
 				else
 				{
-					m_ChatsMap[m_Contacts[curSelected]] = std::make_unique<Chat>(1001, m_Contacts[curSelected].c_str());
+					m_ChatsMap[m_Contacts[curSelected]] = std::make_unique<Chat>(1002, m_Contacts[curSelected].c_str());
 					m_ChatsMap[m_Contacts[curSelected]]->OnCreate();
 				}
 			}
