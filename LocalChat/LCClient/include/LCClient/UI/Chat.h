@@ -40,7 +40,8 @@ public:
 
 	void OnImGuiRender()
 	{
-		if (ImGui::Begin(m_DisplayName ? m_DisplayName : "Chat Window"))
+		bool chatWindowOpen = false;
+		if (ImGui::Begin((m_DisplayName ? m_DisplayName : "Chat Window"), &chatWindowOpen))
 		{
 			for (auto& blob : m_Blobs)
 			{
@@ -48,10 +49,11 @@ public:
 			}
 
 			{
+				bool textAreaWindowOpen = false;
 				const ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar;
 				
 				ImGui::SetNextWindowSize(ImVec2(ImGui::GetContentRegionAvail().x, 100));
-				ImGui::Begin("Type New Message", NULL, ImGuiWindowFlags_HorizontalScrollbar);
+				ImGui::Begin("Type New Message", &textAreaWindowOpen, ImGuiWindowFlags_HorizontalScrollbar);
 				char buf[(size_t)1e2] = {0};
 				
 				static ImVector<char> my_str;

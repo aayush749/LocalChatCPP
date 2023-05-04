@@ -164,7 +164,10 @@ Application::Application()
     // Load Textures
     GLOBAL_TEX_LOADER.LoadAllTextures(texturePaths);
 
-    m_ListPtr = new ConversationList({ "Aayush Anand", "Prince Vishwakarma" });
+    m_ListPtr = new ConversationList({ 
+            {1001, "Aayush Anand"}, 
+            {1002, "Prince Vishwakarma"}
+        });
 
     AudioManager::Init();
 
@@ -255,6 +258,51 @@ void Application::Update()
             //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
             // My code
+
+            if (ImGui::Button("Add New Contact"))
+                ImGui::OpenPopup("Add New Contact");
+            
+            // Always center this window when appearing
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+            if (ImGui::BeginPopupModal("Add New Contact", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                static char hashText[11] = { 0 };
+                static char contactName[256] = { 0 };
+
+                ImGui::Text("Enter the details...");
+
+                ImGui::Separator();
+
+                ImGui::Text("Display Name");
+                ImGui::SameLine();
+                ImGui::Spacing();
+                ImGui::InputText("##NameInputText", contactName, sizeof(contactName));
+
+                ImGui::Text("Hash");
+                ImGui::SameLine();
+                ImGui::Spacing();
+                ImGui::InputText("##HashInputText", hashText, sizeof(hashText));
+
+                ImGui::Separator();
+                
+                if (ImGui::Button("Create"))
+                {
+                    uint64_t clientHash = std::stoull(std::string(hashText));
+
+                    m_ListPtr->AddNewContact(clientHash, contactName);
+                
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SetItemDefaultFocus();
+
+                ImGui::SameLine();
+
+                if (ImGui::Button("Cancel")) { ImGui::CloseCurrentPopup(); }
+
+                ImGui::EndPopup();
+            }
 
             m_ListPtr->OnCreate();
             m_ListPtr->OnImGuiRender();
