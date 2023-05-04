@@ -21,6 +21,7 @@ class Chat MAKE_UI_ELEMENT(Chat)
 
 	using MessageUPtr = std::unique_ptr<Message>;
 public:
+	// Client Hash: The hash of the client represented by the current chat
 	Chat(uint64_t clientHash, const char* displayName = nullptr)
 		:BaseClassTp(ImGui::GetIO())
 		,m_ClientHash(clientHash)
