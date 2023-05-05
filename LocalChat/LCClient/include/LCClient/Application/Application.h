@@ -20,11 +20,13 @@
 #include <LCClient/UI/TextureLoader.h>
 #include <LCClient/UI/FontManager.h>
 #include <LCClient/Audio/AudioManager.h>
+#include <LCClient/LCClient.h>
 
 #include <array>
 
 extern TextureLoader GLOBAL_TEX_LOADER;
 extern std::array<const char*, (size_t)TextureType::COUNT> texturePaths;
+extern LCClient GLOBAL_CLIENT;
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -41,6 +43,8 @@ public:
 
 	void Start();
 	void Update();
+
+    ConversationList* GetConversationListPtr() { return m_ListPtr; }
 private:
 	GLFWwindow* m_WindowPtr = nullptr;
 	ImGuiIO* m_IOPtr = nullptr;
@@ -180,8 +184,7 @@ Application::Application()
 
 void Application::Start()
 {
-    
-
+    LCClient::SetApplicationPtr(this);
 }
 
 void Application::Update()

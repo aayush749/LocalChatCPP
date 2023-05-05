@@ -28,9 +28,18 @@ public:
 		,m_DisplayName(displayName)
 	{}
 
-	void PushMsg(MessageUPtr& msg)
+	void PushIncomingTextMsg(std::unique_ptr<Message> msg)
 	{
-		m_Messages.push_back(std::move(msg));
+		//m_Messages.push_back(std::move(msg));
+
+		// This method takes ownership of the 'msg'
+		// and then re-transfers that ownership to the newly created message blob
+		// which is created at the end of the m_Blobs vector
+
+		m_Blobs.push_back(std::make_unique<MessageBlob>(
+			std::move(msg), false));
+
+		AudioManager::PlayAudio(AudioAlert::MSG_RECV);
 	}
 
 	void OnCreate()

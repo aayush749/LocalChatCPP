@@ -9,6 +9,7 @@
 #include <thread>
 #include <mutex>
 
+class Application;
 
 class LCClient
 {
@@ -20,6 +21,8 @@ public:
 	
 	void ListenIncomingMsgs();
 	
+	static void SetApplicationPtr(Application* app) { if (app) s_AppPtr = app; };
+
 	uint64_t GetHash() const { return m_Hash; }
 	StreamTp& GetStream() { return m_Stream; }
 
@@ -38,6 +41,7 @@ private:
 	std::thread m_IncomingMsgListenerThread;
 	ntwk::Socket m_Socket;
 	StreamTp m_Stream;
+	inline static Application* s_AppPtr = nullptr;
 
 	bool m_ShouldStopListening;
 };

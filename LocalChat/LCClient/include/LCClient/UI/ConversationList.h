@@ -97,6 +97,17 @@ public:
 		m_Contacts.emplace_back(hash, name);
 	}
 
+	Chat* GetChatFromHash(uint64_t clientHash)
+	{
+		auto it = m_ChatsMap.find(clientHash);
+		if (it != m_ChatsMap.cend())
+		{
+			return it->second.get();
+		}
+		else
+			return nullptr;
+	}
+
 private:
 	std::vector<Contact> m_Contacts;
 	std::unordered_map<uint64_t, std::unique_ptr<Chat>> m_ChatsMap;
