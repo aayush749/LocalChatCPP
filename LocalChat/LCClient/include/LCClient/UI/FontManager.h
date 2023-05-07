@@ -14,16 +14,9 @@ enum class FontUsage
 class FontManager
 {
 public:
-	static void SetFont(FontUsage usage, const char* fontPath, float size)
-	{
-		s_FontsCache[(size_t)usage] = ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath, size);
-	}
+	static void SetFont(FontUsage usage, const char* fontPath, float size);
 
-	static ImFont* GetFont(FontUsage usage)
-	{
-		return s_FontsCache[(size_t)usage];
-	}
-	
+	static ImFont* GetFont(FontUsage usage);
 private:
 	inline static std::array<ImFont*, (size_t) FontUsage::NUM_FONT_USAGE> s_FontsCache;
 };
