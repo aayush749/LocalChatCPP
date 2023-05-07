@@ -178,7 +178,7 @@ void LCClient::ListenIncomingMsgs()
 				Chat* chatPtr = s_AppPtr->GetConversationListPtr()->GetChatFromHash(tm.GetSenderHash());
 				if (chatPtr)
 				{
-					auto tmUPtr = std::unique_ptr<TextMessage>(&tm);
+					auto tmUPtr = std::make_unique<TextMessage>(std::move(tm));
 					chatPtr->PushIncomingTextMsg(std::move(tmUPtr));
 				}
 			}

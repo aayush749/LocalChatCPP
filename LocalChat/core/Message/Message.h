@@ -46,6 +46,8 @@ protected:
 		,m_RecipientHash(recipientHash)
 	{}
 
+	// TODO: Copy and move constructors
+
 	void SetType(MessageType type) { m_Type = type; }
 
 
