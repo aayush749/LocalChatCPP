@@ -4,6 +4,8 @@
 #include <utils/SerializationUtils.h>
 #include <Message/ControlMessage.h>
 #include <Message/TextMessage.h>
+#include <LCClient/UI/Chat.h>
+#include <LCClient/Application/Application.h>
 
 #include <Logger/Logger.h>
 
@@ -170,6 +172,16 @@ void LCClient::ListenIncomingMsgs()
 			TextMessage tm = TextMessage::DeSerialize(buffer);
 			const std::wstring_view content = tm.GetContent();
 			Logger::logfmt<Log::WARNING>("New message received from \"Client#%ld\"! : %s", tm.GetSenderHash(), std::string(content.begin(), content.end()).c_str());
+
+			if (s_AppPtr)
+			{
+				Chat* chatPtr = s_AppPtr->GetConversationListPtr()->GetChatFromHash(tm.GetSenderHash());
+				if (chatPtr)
+				{
+					auto tmUPtr = std::unique_ptr<TextMessage>(&tm);
+					chatPtr->PushIncomingTextMsg(std::move(tmUPtr));
+				}
+			}
 		}
 		else
 			Logger::logfmt<Log::INFO>("Received bytes: %s", std::string(buffer.begin(), buffer.end()).c_str());

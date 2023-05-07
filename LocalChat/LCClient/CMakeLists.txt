@@ -57,6 +57,11 @@ list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/src/Conversion.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/TextureLoader.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/Audio/AudioManager.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/LCClient.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/Chat.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/ConversationList.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/FontManager.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/UI/MessageBlob.cpp)
+list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/src/LCClient/Application/Application.cpp)
 list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/LocalChat/LCClient/LCClientMain.cpp)
 
 #libraries
