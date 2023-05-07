@@ -1,4 +1,5 @@
 #include <LCClient/Application/Application.h>
+#include <LCClient/UI/TextureLoader.h>
 #include <LCClient/LCClient.h>
 
 #include <filesystem>

@@ -1,5 +1,12 @@
 #include <LCClient/Application/Application.h>
 
+#include <LCClient/UI/TextureLoader.h>
+#include <LCClient/UI/FontManager.h>
+#include <LCClient/Audio/AudioManager.h>
+#include <LCClient/LCClient.h>
+#include <Logger/Logger.h>
+
+
 extern TextureLoader GLOBAL_TEX_LOADER;
 extern std::array<const char*, (size_t)TextureType::COUNT> texturePaths;
 extern LCClient GLOBAL_CLIENT;

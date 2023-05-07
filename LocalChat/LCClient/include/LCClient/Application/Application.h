@@ -12,15 +12,7 @@
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
 // My includes
-#include <Events/Event.h>
-#include <Events/EventName.h>
-#include <Logger/Logger.h>
-#include <Events/EventManager.h>
 #include <LCClient/UI/ConversationList.h>
-#include <LCClient/UI/TextureLoader.h>
-#include <LCClient/UI/FontManager.h>
-#include <LCClient/Audio/AudioManager.h>
-#include <LCClient/LCClient.h>
 
 #include <array>
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include <imgui.h>
 #include <Glad/gl.h>
 #include <direct.h>
