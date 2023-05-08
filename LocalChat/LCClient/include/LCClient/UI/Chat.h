@@ -25,12 +25,16 @@ public:
 	void OnCreate();
 	void OnImGuiRender();
 
+	bool IsClickedAtOnce() const { return m_IsClicked; }
+	void SetClicked() { m_IsClicked = true; }
+
 private:
 	static int TextResizeCallback(ImGuiInputTextCallbackData* data);
 
 	static bool CustomInputLineEx(const char* label, const char* hint, ImVector<char>* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0);
 
 private:
+	bool m_IsClicked;
 	uint64_t m_ClientHash;
 	const char* m_DisplayName;
 	std::vector<MessageUPtr> m_Messages;

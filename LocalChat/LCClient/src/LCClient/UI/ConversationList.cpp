@@ -26,6 +26,22 @@ ConversationList::ConversationList(const std::initializer_list<Contact>& contact
 void ConversationList::OnCreate()
 {
 	m_Font = FontManager::GetFont(FontUsage::FONT_USAGE_CONVERSATION_LIST);
+
+	// Initialize all Chats present in m_Contacts initially
+	for (const Contact& contact : m_Contacts)
+	{
+		const auto& [hash, displayName] = contact;
+
+		m_ChatsMap.insert(
+			{
+				hash,
+				std::make_unique<Chat>(hash, displayName.c_str())
+			}
+		);
+
+		// Call OnCreate for the newly created Chat
+		m_ChatsMap.at(hash)->OnCreate();
+	}
 }
 
 void ConversationList::OnImGuiRender()
@@ -48,7 +64,9 @@ void ConversationList::OnImGuiRender()
 			auto it = m_ChatsMap.find(m_Contacts[curSelected].hash);
 			if (it != m_ChatsMap.cend())
 			{
-				// chat has already been spawned 
+				// chat has already been spawned
+				// Set the "is clicked" field in the Chat
+				it->second->SetClicked();
 			}
 			else
 			{
@@ -62,10 +80,11 @@ void ConversationList::OnImGuiRender()
 		ImGui::PopFont();
 	}
 
-	// Now render all chats
+	// Now render all chats only if they have been clicked at once
 	for (const auto& [clientContact, chat] : m_ChatsMap)
 	{
-		chat->OnImGuiRender();
+		if (chat->IsClickedAtOnce())
+			chat->OnImGuiRender();
 	}
 }
 

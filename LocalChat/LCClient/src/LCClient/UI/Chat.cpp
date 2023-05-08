@@ -14,6 +14,7 @@ Chat::Chat(uint64_t clientHash, const char* displayName)
 	:BaseClassTp(ImGui::GetIO())
 	, m_ClientHash(clientHash)
 	, m_DisplayName(displayName)
+	, m_IsClicked(false)
 {}
 
 void Chat::PushIncomingTextMsg(std::unique_ptr<Message> msg)
