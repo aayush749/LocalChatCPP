@@ -36,6 +36,7 @@ public:
     ConversationList* GetConversationListPtr() { return m_ListPtr; }
 private:
 	GLFWwindow* m_WindowPtr = nullptr;
+	GLFWimage m_WindowIcon;
 	ImGuiIO* m_IOPtr = nullptr;
 	ImFont* m_Font24, *m_Font18, *m_Font12;
 

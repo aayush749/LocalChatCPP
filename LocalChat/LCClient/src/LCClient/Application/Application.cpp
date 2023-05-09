@@ -6,6 +6,7 @@
 #include <LCClient/LCClient.h>
 #include <Logger/Logger.h>
 
+#include <stb/stb_image.h>
 
 extern TextureLoader GLOBAL_TEX_LOADER;
 extern std::array<const char*, (size_t)TextureType::COUNT> texturePaths;
@@ -59,6 +60,11 @@ Application::Application()
         std::exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(m_WindowPtr);
+
+    // set application window icon
+    m_WindowIcon.pixels = stbi_load("../../../../LocalChat/LCClient/res/icon/LC Icon-2.png",
+        &m_WindowIcon.width, &m_WindowIcon.height, 0, 4);
+    glfwSetWindowIcon(m_WindowPtr, 1, &m_WindowIcon);
 
     int version = gladLoadGL(glfwGetProcAddress);
     Logger::logfmt<Log::WARNING>("gladLoadGL returned %d", version);
@@ -308,6 +314,7 @@ Application::~Application()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
+    stbi_image_free(m_WindowIcon.pixels);
     glfwDestroyWindow(m_WindowPtr);
     glfwTerminate();
 
