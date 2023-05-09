@@ -9,7 +9,7 @@ var searchData=
   ['lcserver_2eh_6',['LCServer.h',['../_l_c_server_8h.html',1,'']]],
   ['lcservererror_7',['LCServerError',['../_l_c_server_8h.html#a24f37bc1ed5cef56f1972b544bc461ec',1,'LCServer.h']]],
   ['lcservlauncher_2ecpp_8',['LCServLauncher.cpp',['../_l_c_serv_launcher_8cpp.html',1,'']]],
-  ['listen_9',['Listen',['../class_client_app.html#a0bf7df4d2930669e6f80e6e4f096840b',1,'ClientApp::Listen()'],['../classntwk_1_1_socket.html#aa4acf66c4003e259a2add71069397c69',1,'ntwk::Socket::Listen()']]],
+  ['listen_9',['Listen',['../classntwk_1_1_socket.html#aa4acf66c4003e259a2add71069397c69',1,'ntwk::Socket::Listen()'],['../class_client_app.html#a0bf7df4d2930669e6f80e6e4f096840b',1,'ClientApp::Listen()']]],
   ['listenforclients_10',['ListenForClients',['../class_l_c_server.html#ae316f9786128c84ff191f8ac2a159b94',1,'LCServer']]],
   ['listenincomingmsgs_11',['ListenIncomingMsgs',['../class_l_c_client.html#a0700f5a34d254e664165780c0dbc1eee',1,'LCClient']]],
   ['loadalltextures_12',['LoadAllTextures',['../class_texture_loader.html#a00c2bf9970590077840220540eea64fd',1,'TextureLoader']]],

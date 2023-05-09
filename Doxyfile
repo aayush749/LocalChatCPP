@@ -2778,3 +2778,7 @@ GENERATE_LEGEND        = YES
 # The default value is: YES.
 
 DOT_CLEANUP            = YES
+
+# HTML Favicon options
+HTML_HEADER            = headerFile
+HTML_EXTRA_FILES       += favicon.ico

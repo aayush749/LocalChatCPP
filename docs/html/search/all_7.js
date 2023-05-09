@@ -17,13 +17,13 @@ var searchData=
   ['getrecipienthash_14',['GetRecipientHash',['../class_message.html#a8dd384043814aee804db49f37d90cfc7',1,'Message']]],
   ['getsenderhash_15',['GetSenderHash',['../class_message.html#a53283b80cbd467307fc01fd76a7e7d5e',1,'Message']]],
   ['getserializedcontent_16',['GetSerializedContent',['../_message_blob_8h.html#ad3fc02b4083d33a47856bb037e29b8c0',1,'MessageBlob.cpp']]],
-  ['getsocket_17',['GetSocket',['../class_client_app.html#a42b04b006f8be8e0f3791f5e15c46cfc',1,'ClientApp::GetSocket()'],['../classntwk_1_1_socket.html#a1af0bdae634bf7be9ce480a1febec18e',1,'ntwk::Socket::GetSocket()']]],
+  ['getsocket_17',['GetSocket',['../classntwk_1_1_socket.html#a1af0bdae634bf7be9ce480a1febec18e',1,'ntwk::Socket::GetSocket()'],['../class_client_app.html#a42b04b006f8be8e0f3791f5e15c46cfc',1,'ClientApp::GetSocket()']]],
   ['getstream_18',['GetStream',['../class_l_c_client.html#a44b3adb7b84bc43aefb39a895c3b013e',1,'LCClient::GetStream()'],['../class_client_app.html#a8db6537f6f490f99cd472a2c63e66cd1',1,'ClientApp::GetStream()']]],
   ['getstrmmutex_19',['GetStrmMutex',['../class_client_app.html#a184d75cd1c5e267db9564dba32ead2ea',1,'ClientApp']]],
   ['gettextureid_20',['GetTextureID',['../class_texture_loader.html#a80dcb5ff62f1c3a376264109d6d8d40a',1,'TextureLoader']]],
   ['gettype_21',['GetType',['../class_control_message.html#a83ad037cd87ebfc3b2cabe06ae72feec',1,'ControlMessage::GetType()'],['../class_message.html#a022cda76a3f9ac4e1085e14348f9cb66',1,'Message::GetType()']]],
   ['gl_5fsilence_5fdeprecation_22',['GL_SILENCE_DEPRECATION',['../_application_8h.html#a1ce7c516538704e5b04a99450edc572f',1,'Application.h']]],
-  ['global_5fclient_23',['GLOBAL_CLIENT',['../_l_c_client_main_8cpp.html#a8918814a65774f821c52b5d57d7cb968',1,'GLOBAL_CLIENT():&#160;LCClientMain.cpp'],['../_application_8cpp.html#afd5a6df9808a0d29cd1155ebb4305d29',1,'GLOBAL_CLIENT():&#160;Application.cpp'],['../_chat_8cpp.html#afd5a6df9808a0d29cd1155ebb4305d29',1,'GLOBAL_CLIENT():&#160;Chat.cpp']]],
+  ['global_5fclient_23',['GLOBAL_CLIENT',['../_l_c_client_main_8cpp.html#a8918814a65774f821c52b5d57d7cb968',1,'GLOBAL_CLIENT():&#160;LCClientMain.cpp'],['../_chat_8cpp.html#afd5a6df9808a0d29cd1155ebb4305d29',1,'GLOBAL_CLIENT():&#160;Chat.cpp'],['../_application_8cpp.html#afd5a6df9808a0d29cd1155ebb4305d29',1,'GLOBAL_CLIENT():&#160;Application.cpp']]],
   ['global_5fserver_24',['GLOBAL_SERVER',['../_l_c_serv_launcher_8cpp.html#a21c7fbdcb47261665228facdde189eca',1,'GLOBAL_SERVER():&#160;LCServLauncher.cpp'],['../_client_app_8cpp.html#a52c3f6082e57004c2d9a0a40965418ac',1,'GLOBAL_SERVER():&#160;ClientApp.cpp']]],
   ['global_5ftex_5floader_25',['GLOBAL_TEX_LOADER',['../_l_c_client_main_8cpp.html#a22f4fa951e899954b3b389a126e99314',1,'GLOBAL_TEX_LOADER():&#160;LCClientMain.cpp'],['../_application_8cpp.html#a22f4fa951e899954b3b389a126e99314',1,'GLOBAL_TEX_LOADER():&#160;LCClientMain.cpp'],['../_chat_8cpp.html#a22f4fa951e899954b3b389a126e99314',1,'GLOBAL_TEX_LOADER():&#160;LCClientMain.cpp'],['../_message_blob_8cpp.html#a22f4fa951e899954b3b389a126e99314',1,'GLOBAL_TEX_LOADER():&#160;LCClientMain.cpp']]]
 ];
