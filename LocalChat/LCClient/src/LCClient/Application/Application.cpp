@@ -127,10 +127,7 @@ Application::Application()
     // Load Textures
     GLOBAL_TEX_LOADER.LoadAllTextures(texturePaths);
 
-    m_ListPtr = new ConversationList({
-            {1001, "Aayush Anand"},
-            {1002, "Prince Vishwakarma"}
-        });
+    m_ListPtr = new ConversationList();
 
     AudioManager::Init();
 
