@@ -16,7 +16,6 @@ static std::optional<ConversationList::Contact> ReadContactFromFile(std::ifstrea
 	{
 		Contact contact(0, "");
 		inFile.read((char*)&contact, sizeof(Contact));
-		inFile.seekg(std::ios::cur + sizeof(Contact));
 		c = contact;
 	}
 
