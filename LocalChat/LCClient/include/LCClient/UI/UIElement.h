@@ -37,4 +37,5 @@ public:
 
 protected:
 	ImGuiIO& io;
+	bool m_Created = false;
 };

@@ -15,16 +15,26 @@ public:
 	struct Contact
 	{
 		uint64_t hash;
-		std::string name;
+		char name[256] = {0};
 
 		Contact(uint64_t hashNum, const std::string& clientName)
-			:hash(hashNum), name(clientName)
-		{}
+			:hash(hashNum)
+		{
+			strncpy(name, clientName.c_str(), 256);
+		}
+
+		Contact(const Contact& other)
+			:hash(other.hash)
+		{
+			strncpy(name, other.name, 256);
+		}
 	};
 
 public:
 
 	ConversationList();
+	
+	~ConversationList();
 	
 	ConversationList(const std::vector<Contact>& contacts);
 	
