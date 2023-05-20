@@ -161,3 +161,8 @@ std::wstring MessageBlob::GetSerializedContent()
 
 	return serialized;
 }
+
+void MessageBlob::Serialize(std::wstring& buffer)
+{
+	m_MessagePtr->Serialize(buffer);
+}

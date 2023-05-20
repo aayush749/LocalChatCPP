@@ -2,6 +2,7 @@
 
 #include <LCClient/UI/FontManager.h>
 #include <Logger/Logger.h>
+#include <Message/TextMessage.h>
 
 #include <fstream>
 #include <optional>
@@ -92,6 +93,9 @@ void ConversationList::OnCreate()
 			}
 		);
 
+		// Now, load the Chat for this Contact (from the message db)
+		LoadMessagesFromDisk(contact.hash);
+
 		// Call OnCreate for the newly created Chat
 		m_ChatsMap.at(hash)->OnCreate();
 	}
@@ -178,4 +182,45 @@ ConversationList::~ConversationList()
 
 	// Close the file
 	file.close();
+}
+
+
+void ConversationList::LoadMessagesFromDisk(const uint64_t friendHash)
+{
+	// only try to load messages for a chat, if that chat is already loaded
+	if (m_ChatsMap.find(friendHash) == m_ChatsMap.end())	return;
+
+	// create the filepath
+	std::filesystem::path path = std::filesystem::path(getenv("USERPROFILE"))
+		.concat("/Documents/LocalChatCpp/chats/")
+		.concat(std::to_string(friendHash) + ".db");
+
+	std::wifstream chatFileIn(path, std::ios::in | std::ios::beg);
+
+	// if the chat is newly created, then its db won't exist, return in that case
+	if (!chatFileIn.is_open())	return;
+
+	size_t numMessages = 0;
+	std::wstring numMessagesStr;
+	getline(chatFileIn, numMessagesStr);
+
+	numMessages = std::stoull(numMessagesStr);
+
+	for (size_t i = 0; i < numMessages; i++)
+	{
+		std::wstring serialized;
+		getline(chatFileIn, serialized);
+
+		auto pMsg = std::make_unique<TextMessage>(
+			TextMessage::DeSerialize(
+				serialized.substr(0, serialized.size() - 1)	// remove the suffix which indicates left/ right rendering of message
+			)
+		);
+
+		// Push the message to the corresponding chat
+		if (serialized.back() == L'R')
+			m_ChatsMap[friendHash]->PushNewTextMsg(std::move(pMsg), true);
+		else
+			m_ChatsMap[friendHash]->PushNewTextMsg(std::move(pMsg), false);
+	}
 }

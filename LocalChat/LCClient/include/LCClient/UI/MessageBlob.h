@@ -20,6 +20,10 @@ public:
 
 	std::wstring GetSerializedContent();
 
+	void Serialize(_Inout_ std::wstring& buffer);
+
+	const uint64_t GetSenderHash() const { return m_MessagePtr->GetSenderHash(); }
+	const uint64_t GetReceiverHash() const {	return m_MessagePtr->GetRecipientHash();	}
 private:
 	void RenderTowardsLeft(ImVec2 size);
 	void RenderTowardsRight(ImVec2 size);

@@ -6,6 +6,8 @@
 #include <LCClient/Audio/AudioManager.h>
 #include <Logger/Logger.h>
 
+#include <fstream>
+
 extern TextureLoader GLOBAL_TEX_LOADER;
 extern LCClient GLOBAL_CLIENT;
 
@@ -25,10 +27,15 @@ void Chat::PushIncomingTextMsg(std::unique_ptr<Message> msg)
 	// and then re-transfers that ownership to the newly created message blob
 	// which is created at the end of the m_Blobs vector
 
-	m_Blobs.push_back(std::make_unique<MessageBlob>(
-		std::move(msg), false));
+	PushNewTextMsg(std::move(msg), false);
 
 	AudioManager::PlayAudio(AudioAlert::MSG_RECV);
+}
+
+void Chat::PushNewTextMsg(std::unique_ptr<Message> msg, const bool renderRight)
+{
+	m_Blobs.push_back(std::make_unique<MessageBlob>(
+		std::move(msg), renderRight));
 }
 
 void Chat::OnCreate()
@@ -100,4 +107,35 @@ bool Chat::CustomInputLineEx(const char* label, const char* hint, ImVector<char>
 	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 	return ImGui::InputTextEx(label, hint, my_str->begin(), (size_t)my_str->size(), size, flags | ImGuiInputTextFlags_CallbackResize, Chat::TextResizeCallback, (void*)my_str);
 	//return ImGui::InputTextMultiline(label, my_str->begin(), (size_t)my_str->size(), size, flags | ImGuiInputTextFlags_CallbackResize, Chat::TextResizeCallback , (void*)my_str);
+}
+
+Chat::~Chat()
+{
+	// Write the serialized message contents to the db file
+
+	std::filesystem::path path = std::filesystem::path(getenv("USERPROFILE"))
+		.concat("/Documents/LocalChatCpp/chats/")
+		.concat(std::to_string(m_ClientHash) + ".db");
+
+	std::wofstream chatFileOut(path, std::ios::out);
+	
+	chatFileOut << m_Blobs.size() << L'\n';
+	for (const std::unique_ptr<MessageBlob>& pMsgBlob : m_Blobs)
+	{
+		std::wstring serialized;
+		pMsgBlob->Serialize(serialized);
+
+		chatFileOut << serialized;
+
+		// Sender is the client app, so message must be rendering towards right
+		if (pMsgBlob->GetSenderHash() == GLOBAL_CLIENT.GetHash())
+			chatFileOut << L"R\n";	// add a suffix indicating right rendering message
+		else
+			chatFileOut << L"L\n";	// add a suffix indicating lef rendering message
+
+		/*if (pMsg != m_Messages.back())
+			chatFileOut << L'\n';
+		else
+			continue;*/
+	}
 }

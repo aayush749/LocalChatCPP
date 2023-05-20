@@ -19,9 +19,20 @@ class Chat MAKE_UI_ELEMENT(Chat)
 public:
 	// Client Hash: The hash of the client represented by the current chat
 	Chat(uint64_t clientHash, const char* displayName = nullptr);
+	~Chat();
 
+	/// <summary>
+	/// Push an incoming text message (plays incoming message audio as well)
+	/// </summary>
+	/// <param name="msg"></param>
 	void PushIncomingTextMsg(std::unique_ptr<Message> msg);
 	
+	/// <summary>
+	/// Push a new text message to this particular chat
+	/// </summary>
+	/// <param name="msg"></param>
+	void PushNewTextMsg(std::unique_ptr<Message> msg, const bool renderRight = true);
+
 	void OnCreate();
 	void OnImGuiRender();
 
@@ -37,6 +48,5 @@ private:
 	bool m_IsClicked;
 	uint64_t m_ClientHash;
 	const char* m_DisplayName;
-	std::vector<MessageUPtr> m_Messages;
 	std::vector<std::unique_ptr<MessageBlob>> m_Blobs;
 };

@@ -48,6 +48,12 @@ public:
 
 	Chat* GetChatFromHash(uint64_t clientHash);
 
+	/// <summary>
+/// Only currently supports loading of text messages!
+/// </summary>
+/// <param name="friendHash"></param>
+	void LoadMessagesFromDisk(const uint64_t friendHash);
+
 private:
 	std::vector<Contact> m_Contacts;
 	std::unordered_map<uint64_t, std::unique_ptr<Chat>> m_ChatsMap;
